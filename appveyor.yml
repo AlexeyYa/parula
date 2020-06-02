@@ -1,0 +1,48 @@
+version: '0.1.{build}'
+
+image: Visual Studio 2019
+
+platform:
+  - x64
+
+configuration:
+  - Release
+  
+before_build:
+  - set VCPKG_INSTALLED=C:\Tools\vcpkg\installed\%platform%-windows
+  # If cached directory does not exist, update vcpkg and install dependencies
+  - if not exist %VCPKG_INSTALLED%\bin (
+      cd "C:\Tools\vcpkg" &
+      git pull > nul &
+      .\bootstrap-vcpkg.bat -disableMetrics &
+      vcpkg install sdl2:"%platform%"-windows &
+      vcpkg install sdl2-image:"%platform%"-windows &
+      vcpkg install tbb:"%platform%"-windows &
+      cd %APPVEYOR_BUILD_FOLDER%
+    )
+  - cmake -G "Visual Studio 16 2019" -DBOOST_ROOT=C:\Libraries\boost_1_71_0 .
+
+build:
+  project: $(APPVEYOR_BUILD_FOLDER)\parula.sln
+
+after_build:
+  - ctest -C Release
+  - cpack -G ZIP $(APPVEYOR_BUILD_FOLDER)
+
+artifacts:
+  - path: '*.zip'
+    name: zip-x64
+
+deploy:
+- provider: BinTray
+  username: alexeyya
+  api_key:
+    secure: AxjYJbTd/GAJNYnkV6NpQoxE8JKQbHBT0ZfCa5kg2MvJObnYw7XYQq8EZ+wAjjrn
+  subject: alexeyya
+  repo: parula
+  package: Builds
+  artifact: zip-x64
+  publish: true
+  override: true
+  explode: true
+  
