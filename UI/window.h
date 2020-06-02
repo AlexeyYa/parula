@@ -5,7 +5,7 @@
 #include "Input/input_manager.h"
 #include "Graphics/image_engine.h"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #include <atomic>
 #include <memory>

@@ -4,8 +4,8 @@
 #include "Input/iinput_state.h"
 #include "Input/input_event.h"
 
-#include <SDL.h>
-#include <SDL_syswm.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 #include <tbb/concurrent_vector.h>
 #include <tbb/concurrent_unordered_map.h>
