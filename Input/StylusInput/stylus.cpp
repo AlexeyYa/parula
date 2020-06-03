@@ -1,6 +1,8 @@
 
 #include "Input/StylusInput/stylus.h"
 
+#ifdef _WIN32
+
 #include <iostream>
 
 class FWindowsRealTimeStylusPlugin * g_pRTSHandler = nullptr;
@@ -458,3 +460,4 @@ HRESULT FWindowsRealTimeStylusPlugin::InAirPackets(IRealTimeStylus* RealTimeStyl
     HandlePacket(RealTimeStylus, StylusInfo, PacketCount, PacketBufferLength, Packets);
     return S_OK;
 }
+#endif

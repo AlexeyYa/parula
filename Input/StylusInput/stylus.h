@@ -2,6 +2,8 @@
 #ifndef STYLUS_H
 #define STYLUS_H
 
+#ifdef _WIN32
+
 #include "Input/iinput_state.h"
 #include "Input/input_event.h"
 #include "Input/input_manager.h"
@@ -177,4 +179,5 @@ private:
     void RemoveTabletContext(IRealTimeStylus* RealTimeStylus, TABLET_CONTEXT_ID TabletID);
 };
 
+#endif
 #endif
