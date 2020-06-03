@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(parula LANGUAGES CXX)
+if($ENV{TRAVIS_BUILD_NUMBER})
+    project(parula VERSION 0.1.$ENV{TRAVIS_BUILD_NUMBER} LANGUAGES CXX)
+elseif($ENV{APPVEYOR_BUILD_NUMBER})
+    project(parula VERSION 0.1.$ENV{APPVEYOR_BUILD_NUMBER} LANGUAGES CXX)
+else()
+    project(parula VERSION 0.1.1 LANGUAGES CXX)
+endif()
+
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
