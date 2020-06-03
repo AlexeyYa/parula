@@ -38,7 +38,7 @@ deploy:
   api_key:
     secure: AxjYJbTd/GAJNYnkV6NpQoxE8JKQbHBT0ZfCa5kg2MvJObnYw7XYQq8EZ+wAjjrn
   subject: alexeyya
-  repo: parula
+  repo: PARULA
   package: Builds
   artifact: zip-x64
   publish: true

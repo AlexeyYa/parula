@@ -18,7 +18,8 @@ add_executable(parula main.cpp
                        Graphics/texture.cpp
                        Input/input_manager.cpp
                        Input/StylusInput/stylus.cpp
-                       Modules/Recognition/rec_worker.cpp)
+                       Modules/Recognition/rec_worker.cpp
+                       Modules/DrawPath/draw_path.cpp)
 
 target_include_directories(parula PRIVATE ${PROJECT_SOURCE_DIR})
 
