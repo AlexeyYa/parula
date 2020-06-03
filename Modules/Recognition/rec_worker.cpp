@@ -21,9 +21,7 @@ void Recognition::HandleEvent(std::shared_ptr<void *> data)
 }
 
 void Recognition::UpdateTextures()
-{
-
-}
+{}
 
 void Recognition::RecognizeStroke(std::shared_ptr<IStroke> data)
 {

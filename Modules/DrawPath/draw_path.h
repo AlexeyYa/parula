@@ -9,6 +9,11 @@
 
 #include <tbb/concurrent_queue.h>
 
+class Point
+{
+
+};
+
 class Drawing : public IModule
 {
 public:

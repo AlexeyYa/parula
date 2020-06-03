@@ -23,7 +23,6 @@ void Drawing::UpdateTextures()
 
     for (; cur_idx < m_stroke->stroke.size(); ++cur_idx)
     {
-
     }
 
     if (m_stroke->completed && cur_idx == m_stroke->stroke.size())
@@ -34,4 +33,9 @@ void Drawing::UpdateTextures()
 
     m_pixels = nullptr;
     layer.FreePixels();
+}
+
+void Drawing::DrawLine() const
+{
+
 }
