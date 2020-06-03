@@ -30,11 +30,17 @@ add_executable(parula main.cpp
 
 target_include_directories(parula PRIVATE ${PROJECT_SOURCE_DIR})
 
+
+if($ENV{TRAVIS_BUILD_NUMBER})
+    target_link_libraries(parula PRIVATE ${SDL2_LIBRARY}
+                                         TBB::tbb
+                                         Threads::Threads)
+else()
 target_link_libraries(parula PRIVATE SDL2::SDL2
                                      SDL2::SDL2main
                                      TBB::tbb
                                      Threads::Threads)
-
+endif()
 
 install(TARGETS parula DESTINATION bin)
 
