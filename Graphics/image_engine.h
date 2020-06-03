@@ -7,6 +7,7 @@
 #include "Input/input_manager.h"
 
 #include "Modules/Recognition/rec_worker.h"
+#include "Modules/DrawPath/draw_path.h"
 
 #include <SDL2/SDL.h>
 #include <tbb/concurrent_vector.h>
@@ -22,7 +23,7 @@ public:
     void DrawFrame();
     void UpdateTextures();
     tbb::concurrent_vector<LTexture>& GetLayers();
-    LTexture& GetTemporaryLayer();
+    LTexture* GetTemporaryLayer();
 private:
     int m_width;
     int m_height;

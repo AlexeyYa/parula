@@ -26,25 +26,35 @@ void LTexture::Render() const
     SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);
 }
 
+
+
+
+
+#include <iostream>
 void* LTexture::GetPixels()
 {
+    std::cout << "LOcking" << std::endl;
     if (m_pixels == nullptr)
     {
         if (SDL_LockTexture(m_texture, nullptr, &m_pixels, &m_pitch) == 0)
             return m_pixels;
         else
             // Unable to lock
+            std::cout << "Unable to lock" << std::endl;
             throw;
     }
     else
     {
         // Already locked
-        throw;
+        std::cout << "Already locked" << std::endl;
+//        throw;
+        return nullptr;
     }
 }
 
 void LTexture::FreePixels()
 {
+    std::cout << "UnLOcking" << std::endl;
     if (m_pixels != nullptr)
     {
         SDL_UnlockTexture(m_texture);
@@ -54,6 +64,7 @@ void LTexture::FreePixels()
     else
     {
         // Texture is not locked
+        std::cout << "Texture is not locked" << std::endl;
         throw;
     }
 }

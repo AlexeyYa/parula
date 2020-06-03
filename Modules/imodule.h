@@ -18,6 +18,7 @@ public:
 
     virtual void UpdateTextures() = 0;
 
+protected:
     ImageEngine* m_iengine;
     std::shared_ptr<void*> m_data;
 };

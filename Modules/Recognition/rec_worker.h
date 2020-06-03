@@ -13,7 +13,7 @@ public:
     Recognition(ImageEngine* image_engine, float threshold_angle, float threshold_distance);
 
     void HandleEvent(std::shared_ptr<void*> data);
-    void UpdateTextures() final;
+    void UpdateTextures() override final;
 private:
     void RecognizeStroke(std::shared_ptr<IStroke> data);
     float m_threshold_angle;

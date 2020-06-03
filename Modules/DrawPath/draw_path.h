@@ -9,9 +9,15 @@
 
 #include <tbb/concurrent_queue.h>
 
-class Point
+// move to other file
+struct Point
 {
+    Point(float X, float Y) :
+        X(X), Y(Y)
+    {}
 
+    float X;
+    float Y;
 };
 
 class Drawing : public IModule
@@ -20,13 +26,14 @@ public:
     Drawing(ImageEngine* image_engine);
 
     void HandleEvent(std::shared_ptr<void*> data);
-    void UpdateTextures() final;
+    virtual void UpdateTextures() override final;
 private:
-    void DrawLine() const;
+    void DrawLine(Point start, Point end) const;
     // ToDo: Point and Bezier Point struct
     std::shared_ptr<IStroke> m_stroke;
     size_t cur_idx;
-    void* m_pixels;
+    int* m_pixels;
+    int m_pitch;
 };
 
 #endif

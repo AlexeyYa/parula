@@ -11,6 +11,7 @@ ImageEngine::ImageEngine(int width, int height, SDL_Window* window, SDL_Renderer
     m_tmp_layer(m_width, m_height, m_window, m_renderer)
 {
     m_modules.push_back(std::make_unique<Recognition>(this, 1.0f, 1.0f));
+    m_modules.push_back(std::make_unique<Drawing>(this));
 }
 
 void ImageEngine::SubscribeEvent(INPUTEVENT input_event, delegate function)
@@ -41,7 +42,7 @@ tbb::concurrent_vector<LTexture>& ImageEngine::GetLayers()
     return m_layers;
 }
 
-LTexture& ImageEngine::GetTemporaryLayer()
+LTexture* ImageEngine::GetTemporaryLayer()
 {
-    return m_tmp_layer;
+    return &m_tmp_layer;
 }
