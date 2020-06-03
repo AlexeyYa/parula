@@ -3,8 +3,6 @@
 
 #ifdef _WIN32
 
-#include <iostream>
-
 class FWindowsRealTimeStylusPlugin * g_pRTSHandler = nullptr;
 IRealTimeStylus * g_pRTSStylus = nullptr;
 
@@ -110,7 +108,6 @@ HRESULT FWindowsRealTimeStylusPlugin::StylusDown(IRealTimeStylus*, const StylusI
 
     inputs[StylusInfo->cid] = std::make_shared<IStroke>(tbb::concurrent_vector<IInputState>(), device);
     m_input_manager->FireEvent(INPUTEVENT::STROKE_START, std::reinterpret_pointer_cast<void*>(inputs[StylusInfo->cid]));
-    std::cout << "StylusDown: " << StylusInfo->cid << std::endl;
     return S_OK;
 }
 
@@ -125,7 +122,6 @@ HRESULT FWindowsRealTimeStylusPlugin::StylusUp(IRealTimeStylus*, const StylusInf
     }
     inputs.erase(StylusInfo->cid);
 
-    std::cout << "StylusUp: " << StylusInfo->cid << std::endl;
     return S_OK;
 }
 
@@ -412,14 +408,6 @@ void FWindowsRealTimeStylusPlugin::HandlePacket(IRealTimeStylus*, const StylusIn
                        TabletContext->WindowsState.TiltX,
                        TabletContext->WindowsState.TiltY);
         inputs.at(StylusInfo->cid)->stroke.push_back(is);
-//        std::cout << "Input: " << StylusInfo->cid
-//              << " X: " << TabletContext->WindowsState.X
-//              << " Y: " << TabletContext->WindowsState.Y
-//              << " NP: " << TabletContext->WindowsState.NormalPressure
-//              << " XT: " << TabletContext->WindowsState.TiltX
-//              << " YT: " << TabletContext->WindowsState.TiltY
-//              << " Eraser: " << TabletContext->WindowsState.IsInverted
-//              << " Touching: " << TabletContext->WindowsState.IsTouching << std::endl;
     }
 }
 

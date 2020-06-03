@@ -22,10 +22,8 @@ void InputManager::SubscribeEvent(INPUTEVENT input_event, delegate &function)
     m_events[input_event].connect(function);
 }
 
-#include <iostream>
 void InputManager::EventLoop()
 {
-    std::cout << "eventloop" << std::endl;
     SDL_Event event;
     SDL_EventState(SDL_SYSWMEVENT, 1);
 
