@@ -14,6 +14,8 @@ public:
     IModule(ImageEngine* image_engine) :
         m_iengine(image_engine)
     {}
+    virtual ~IModule() = default;
+
     virtual void UpdateTextures() = 0;
 
     ImageEngine* m_iengine;
