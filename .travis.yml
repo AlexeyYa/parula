@@ -20,7 +20,7 @@ addons:
         name: "AlexeyYa/parula"
         description: "PARULA coverity"
       notification_email: l337.cat@gmail.com
-      build_command_prepend: "cov-configure --template --xml-option=skip_file:\"/usr/.*\""
+      build_command_prepend: "cov-configure --comptype g++ --compiler /usr/bin/g++ --template --xml-option=skip_file:\"/usr/.*\""
       build_command: "./build_coverty.sh"
       branch_pattern: master
 

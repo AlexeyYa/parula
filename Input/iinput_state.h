@@ -4,6 +4,7 @@
 
 #include <tbb/concurrent_vector.h>
 #include <atomic>
+#include <condition_variable>
 
 struct IInputState
 {
@@ -35,6 +36,7 @@ struct IStroke
     tbb::concurrent_vector<IInputState> stroke;
     const INPUT_DEVICE source;
     std::atomic<bool> completed{false};
+    std::condition_variable cv;
 };
 
 #endif

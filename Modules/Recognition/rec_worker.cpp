@@ -3,6 +3,7 @@
 
 #include <boost/signals2.hpp>
 #include <thread>
+#include <mutex>
 
 Recognition::Recognition(ImageEngine* image_engine, float threshold_angle, float threshold_distance) :
     IModule(image_engine),
@@ -24,12 +25,13 @@ void Recognition::UpdateTextures()
 void Recognition::RecognizeStroke(std::shared_ptr<IStroke> data)
 {
     size_t current = 0;
-//    std::mutex mtx;
+    std::mutex mtx;
     while(!data->completed)
     {
-        //std::unique_lock<std::mutex> lck(mtx);
-        //while (data->stroke.size() > current)
-        //    data->cv.wait(lck);
+        std::unique_lock<std::mutex> lck(mtx);
+
+        data->cv.wait(lck, [&]{ return data->stroke.size() > current; });
+
         if (data->stroke.size() > current)
         {
             current++;
