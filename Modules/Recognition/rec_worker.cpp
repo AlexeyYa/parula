@@ -1,8 +1,8 @@
 
 #include "Modules/Recognition/rec_worker.h"
-#include <boost/signals2.hpp>
 
-#include <iostream>
+#include <boost/signals2.hpp>
+#include <thread>
 
 Recognition::Recognition(ImageEngine* image_engine, float threshold_angle, float threshold_distance) :
     IModule(image_engine),
@@ -24,7 +24,7 @@ void Recognition::UpdateTextures()
 void Recognition::RecognizeStroke(std::shared_ptr<IStroke> data)
 {
     size_t current = 0;
-    std::mutex mtx;
+//    std::mutex mtx;
     while(!data->completed)
     {
         //std::unique_lock<std::mutex> lck(mtx);
