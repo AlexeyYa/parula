@@ -32,7 +32,7 @@ target_include_directories(parula PRIVATE ${PROJECT_SOURCE_DIR})
 
 
 if($ENV{TRAVIS_BUILD_NUMBER})
-    target_link_libraries(parula PRIVATE ${SDL2_LIBRARY}
+    target_link_libraries(parula PRIVATE ${SDL2_LIBRARIES}
                                          TBB::tbb
                                          Threads::Threads)
 else()
