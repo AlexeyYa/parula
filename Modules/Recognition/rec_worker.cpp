@@ -14,8 +14,8 @@ Recognition::Recognition(ImageEngine* image_engine, float threshold_angle, float
 
 void Recognition::HandleEvent(std::shared_ptr<void *> data)
 {
-//    std::thread t(&Recognition::RecognizeStroke, this, std::reinterpret_pointer_cast<IStroke>(data));
-//    t.detach();
+    std::thread t(&Recognition::RecognizeStroke, this, std::reinterpret_pointer_cast<IStroke>(data));
+    t.detach();
 }
 
 void Recognition::UpdateTextures()

@@ -13,6 +13,7 @@ InputManager::InputManager()
 
 void InputManager::Run()
 {
+    m_running = true;
     EventLoop();
 }
 
@@ -27,11 +28,14 @@ void InputManager::EventLoop()
     SDL_Event event;
     SDL_EventState(SDL_SYSWMEVENT, 1);
 
+#ifdef _WIN32
     bool g_bTriedToCreateRTSHandler = false;
+#endif
+
     while(m_running){
         //SDL_PumpEvents();
 
-        while(SDL_PollEvent( &event )){
+        while(SDL_WaitEvent( &event )){
             switch( event.type )
             {
             case SDL_QUIT:
@@ -41,23 +45,17 @@ void InputManager::EventLoop()
 // Using RTS API for all inputs on windows
 #ifndef _WIN32
             case SDL_FINGERDOWN:
-                std::cout << "FingerDown" << std::endl;
                 break;
             case SDL_FINGERUP:
-                std::cout << "FingerUp" << std::endl;
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                std::cout << "MouseDown" << std::endl;
                 break;
             case SDL_MOUSEBUTTONUP:
-                std::cout << "MouseUp" << std::endl;
                 break;
 
             case SDL_FINGERMOTION:
-                std::cout << "FingerMotion" << std::endl;
                 break;
             case SDL_MOUSEMOTION:
-                std::cout << "MouseMotion" << std::endl;
                 break;
 #endif
 #ifdef _WIN32

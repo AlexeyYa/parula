@@ -26,7 +26,7 @@ public:
 private:
     void EventLoop();
 
-    bool m_running;
+    bool m_running = false;
     tbb::concurrent_unordered_map<INPUTEVENT, boost::signals2::signal<void(std::shared_ptr<void*>)>,
         std::hash<INPUTEVENT>> m_events;
 };

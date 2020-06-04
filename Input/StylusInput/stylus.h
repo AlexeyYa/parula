@@ -169,7 +169,7 @@ public:
 
 private:
     int RefCount { 1 };
-    HDC m_hDC;
+    HDC m_hDC = nullptr;
     InputManager* m_input_manager;
     std::map<int, std::shared_ptr<IStroke>> inputs;
 

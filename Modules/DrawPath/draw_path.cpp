@@ -5,7 +5,10 @@
 
 Drawing::Drawing(ImageEngine* image_engine) :
     IModule(image_engine),
-    m_stroke(nullptr)
+    m_stroke(nullptr),
+    cur_idx(1),
+    m_pitch(0),
+    m_pixels(nullptr)
 {
     m_iengine->SubscribeEvent(INPUTEVENT::STROKE_START, boost::bind(&Drawing::HandleEvent, this, _1));
 }
@@ -39,7 +42,7 @@ void Drawing::UpdateTextures()
 
     if (m_stroke->completed && cur_idx == m_stroke->stroke.size())
     {
-        cur_idx = 0;
+        cur_idx = 1;
         m_stroke = nullptr;
     }
 
