@@ -120,6 +120,7 @@ HRESULT FWindowsRealTimeStylusPlugin::StylusUp(IRealTimeStylus*, const StylusInf
         TabletContext->WindowsState.IsTouching = false;
         TabletContext->WindowsState.NormalPressure = 0;
     }
+    inputs[StylusInfo->cid]->completed.store(true);
     inputs.erase(StylusInfo->cid);
 
     return S_OK;

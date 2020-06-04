@@ -34,7 +34,7 @@ struct IStroke
 
     tbb::concurrent_vector<IInputState> stroke;
     const INPUT_DEVICE source;
-    std::atomic<bool> completed = false;
+    std::atomic<bool> completed{false};
 };
 
 #endif
