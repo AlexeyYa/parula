@@ -7,8 +7,8 @@ Drawing::Drawing(ImageEngine* image_engine) :
     IModule(image_engine),
     m_stroke(nullptr),
     cur_idx(1),
-    m_pitch(0),
-    m_pixels(nullptr)
+    m_pixels(nullptr),
+    m_pitch(0)
 {
     m_iengine->SubscribeEvent(INPUTEVENT::STROKE_START, boost::bind(&Drawing::HandleEvent, this, _1));
 }
