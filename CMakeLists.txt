@@ -17,6 +17,8 @@ find_package(TBB CONFIG REQUIRED)
 find_package(Boost REQUIRED)
 find_package(Threads)
 
+configure_file(bintray.json.in bintray.json)
+
 include_directories(${Boost_INCLUDE_DIR})
 
 add_executable(parula main.cpp
@@ -36,10 +38,10 @@ if($ENV{TRAVIS_BUILD_NUMBER})
                                          TBB::tbb
                                          Threads::Threads)
 else()
-target_link_libraries(parula PRIVATE SDL2::SDL2
-                                     SDL2::SDL2main
-                                     TBB::tbb
-                                     Threads::Threads)
+    target_link_libraries(parula PRIVATE SDL2::SDL2
+                                         SDL2::SDL2main
+                                         TBB::tbb
+                                         Threads::Threads)
 endif()
 
 install(TARGETS parula DESTINATION bin)
