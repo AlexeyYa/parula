@@ -2,23 +2,13 @@
 #ifndef DRAWPATH_H
 #define DRAWPATH_H
 
+#include "Modules/Common/point.h"
 #include "Input/iinput_state.h"
 #include "Input/input_event.h"
 #include "Modules/imodule.h"
 #include "Graphics/image_engine.h"
 
 #include <tbb/concurrent_queue.h>
-
-// move to other file
-struct Point
-{
-    Point(float X, float Y) :
-        X(X), Y(Y)
-    {}
-
-    float X;
-    float Y;
-};
 
 class Drawing : public IModule
 {

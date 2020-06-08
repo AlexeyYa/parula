@@ -50,6 +50,7 @@ void Drawing::UpdateTextures()
     layer->FreePixels();
 }
 
+// Temporary solution
 void Drawing::DrawLine(Point start, Point end) const
 {
     // calculate dx & dy
