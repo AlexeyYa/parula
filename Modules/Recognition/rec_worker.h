@@ -16,8 +16,11 @@
 class RecWorker : public std::enable_shared_from_this<RecWorker>
 {
 public:
-    RecWorker(Recognition* rec_module, std::shared_ptr<IStroke> data, float threshold_distance) :
-        m_rec_module(rec_module), m_data(data), m_threshold_distance(threshold_distance)
+    RecWorker(Recognition* rec_module, std::shared_ptr<IStroke> data, float threshold_distance, float threshold_angle) :
+        m_rec_module(rec_module),
+        m_data(data),
+        m_threshold_distance(threshold_distance),
+        m_threshold_angle(threshold_angle)
     {}
 
     void RecognizeStroke()
@@ -32,6 +35,7 @@ private:
     Recognition* m_rec_module;
     std::shared_ptr<IStroke> m_data;
     float m_threshold_distance;
+    float m_threshold_angle;
     RPrediction m_prediction;
 
 
@@ -107,7 +111,7 @@ private:
      * \param last index
      * \return check result
      */
-    bool CheckLinePoints(IPoint start, IPoint end, size_t first, size_t last)
+    bool CheckLinePoints(Point start, Point end, size_t first, size_t last)
     {
         float x1 = start.X;
         float y1 = start.Y;
@@ -146,10 +150,10 @@ private:
         if (abs(x1 - x2) > 2*m_threshold_distance ||
                 abs(y1 - y2) > 2*m_threshold_distance) // Short line check
         {
-            if (CheckLinePoints(IPoint(x1, y1), IPoint(x2, y2), 1, m_data->stroke.size() - 1))
+            if (CheckLinePoints(Point(x1, y1), Point(x2, y2), 1, m_data->stroke.size() - 1))
             {
                 m_prediction.active = RPrediction::Line;
-                m_prediction.shape = std::make_shared<Line>(IPoint(x1, y1), IPoint(x2, y2));
+                m_prediction.shape = std::make_shared<Line>(Point(x1, y1), Point(x2, y2));
                 return true;
             }
             else
@@ -170,7 +174,7 @@ private:
 
     }
 
-    bool CheckEllipse(IPoint start, IPoint end, size_t first, size_t last)
+    bool CheckEllipse(Point start, Point end, size_t first, size_t last)
     {
 
     }

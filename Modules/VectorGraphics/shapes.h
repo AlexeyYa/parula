@@ -23,7 +23,7 @@ struct Line : public Shape
     Point start;
     Point end;
 };
-
+/*
 template <typename Container>
 struct Bezier : public Shape
 {
@@ -41,5 +41,5 @@ struct PolyShape
 {
     Container<std::shared_ptr<Shape>> Shapes;
 };
-
+*/
 #endif
