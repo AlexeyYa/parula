@@ -56,7 +56,7 @@ private:
             // Check if fits current prediction
             switch (m_prediction.active) {
             case RPrediction::Line:
-                if (CheckLinePoints(*std::static_pointer_cast<Line>(m_prediction.shape),
+                if (CheckLinePoints(*std::static_pointer_cast<Shape::Line>(m_prediction.shape),
                                     current,
                                     size))
                 {
@@ -110,7 +110,7 @@ private:
      * \param last index
      * \return check result
      */
-    bool CheckLinePoints(Line line, size_t first, size_t last)
+    bool CheckLinePoints(Shape::Line line, size_t first, size_t last)
     {
         float x1 = line.start.X;
         float y1 = line.start.Y;
@@ -122,9 +122,6 @@ private:
         for (size_t i = first; i < last; i++)
         {
             auto& p = m_data->stroke[i];
-            // |(y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1|
-            // -----------------------------------------
-            //       sqrt((y2-y1)^2 + (x2-x1)^2)
             float dist = abs((y2 - y1) * p.X - (x2 - x1) * p.Y +x2*y1 - y2*x1)/len;
             if (dist > m_threshold_distance)
             {
@@ -149,10 +146,10 @@ private:
         if (abs(x1 - x2) > 2*m_threshold_distance ||
                 abs(y1 - y2) > 2*m_threshold_distance) // Short line check
         {
-            if (CheckLinePoints(Line(Point(x1, y1), Point(x2, y2)), 1, m_data->stroke.size() - 1))
+            if (CheckLinePoints(Shape::Line(Shape::Point(x1, y1), Shape::Point(x2, y2)), 1, m_data->stroke.size() - 1))
             {
                 m_prediction.active = RPrediction::Line;
-                m_prediction.shape = std::make_shared<Line>(Point(x1, y1), Point(x2, y2));
+                m_prediction.shape = std::make_shared<Shape::Line>(Shape::Point(x1, y1), Shape::Point(x2, y2));
                 return true;
             }
             else
@@ -173,7 +170,7 @@ private:
 
     }
 
-    bool CheckEllipse(Point start, Point end, size_t first, size_t last)
+    bool CheckEllipse(Shape::Ellipse ellipse, size_t first, size_t last)
     {
 
     }
