@@ -13,9 +13,7 @@ struct Point
 };
 
 struct Shape
-{
-
-};
+{};
 
 struct Line : public Shape
 {
@@ -23,23 +21,29 @@ struct Line : public Shape
     Point start;
     Point end;
 };
-/*
+
+// Container<Point>
 template <typename Container>
 struct Bezier : public Shape
 {
-    Container<Point> P;
+    Container P;
 };
 
 struct Ellipse : public Shape
 {
     // f(x, y) = a*x^2 + b*x*y + c*y^2 + d*x + e*y + f
     float a, b, c, d, e, f;
+    Point center;
+    float r1;
+    float r2;
+    float phi;
 };
 
-template <typename Contaner>
+//Container<std::shared_ptr<Shape>>
+template <typename Container>
 struct PolyShape
 {
-    Container<std::shared_ptr<Shape>> Shapes;
+    Container shapes;
 };
-*/
+
 #endif

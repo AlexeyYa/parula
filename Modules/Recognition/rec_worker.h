@@ -56,8 +56,7 @@ private:
             // Check if fits current prediction
             switch (m_prediction.active) {
             case RPrediction::Line:
-                if (CheckLinePoints(std::static_pointer_cast<Line>(m_prediction.shape)->start,
-                                    std::static_pointer_cast<Line>(m_prediction.shape)->end,
+                if (CheckLinePoints(*std::static_pointer_cast<Line>(m_prediction.shape),
                                     current,
                                     size))
                 {
@@ -111,12 +110,12 @@ private:
      * \param last index
      * \return check result
      */
-    bool CheckLinePoints(Point start, Point end, size_t first, size_t last)
+    bool CheckLinePoints(Line line, size_t first, size_t last)
     {
-        float x1 = start.X;
-        float y1 = start.Y;
-        float x2 = end.X;
-        float y2 = end.Y;
+        float x1 = line.start.X;
+        float y1 = line.start.Y;
+        float x2 = line.end.X;
+        float y2 = line.end.Y;
 
 
         auto len = sqrt((y2-y1)*(y2-y1) + (x2-x1)*(x2-x1));
@@ -150,7 +149,7 @@ private:
         if (abs(x1 - x2) > 2*m_threshold_distance ||
                 abs(y1 - y2) > 2*m_threshold_distance) // Short line check
         {
-            if (CheckLinePoints(Point(x1, y1), Point(x2, y2), 1, m_data->stroke.size() - 1))
+            if (CheckLinePoints(Line(Point(x1, y1), Point(x2, y2)), 1, m_data->stroke.size() - 1))
             {
                 m_prediction.active = RPrediction::Line;
                 m_prediction.shape = std::make_shared<Line>(Point(x1, y1), Point(x2, y2));

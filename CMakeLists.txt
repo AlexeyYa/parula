@@ -15,7 +15,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(TBB CONFIG REQUIRED)
 find_package(Boost REQUIRED)
-find_package(OpenBLAS CONFIG REQUIRED)
+#find_package(OpenBLAS CONFIG REQUIRED)
 find_package(Threads)
 
 configure_file(bintray.json.in bintray.json)
@@ -37,14 +37,12 @@ target_include_directories(parula PRIVATE ${PROJECT_SOURCE_DIR})
 if($ENV{TRAVIS_BUILD_NUMBER})
     target_link_libraries(parula PRIVATE ${SDL2_LIBRARIES}
                                          TBB::tbb
-                                         Threads::Threads
-                                         OpenBLAS::OpenBLAS)
+                                         Threads::Threads)
 else()
     target_link_libraries(parula PRIVATE SDL2::SDL2
                                          SDL2::SDL2main
                                          TBB::tbb
-                                         Threads::Threads
-                                         OpenBLAS::OpenBLAS)
+                                         Threads::Threads)
 endif()
 
 install(TARGETS parula DESTINATION bin)
