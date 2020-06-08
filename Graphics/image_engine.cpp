@@ -1,5 +1,7 @@
 
 #include "Graphics/image_engine.h"
+#include "Modules/Recognition/recognition.h"
+#include "Modules/DrawPath/draw_path.h"
 
 ImageEngine::ImageEngine(int width, int height, SDL_Window* window, SDL_Renderer* renderer,
             std::shared_ptr<InputManager> input_manager) :
@@ -10,8 +12,11 @@ ImageEngine::ImageEngine(int width, int height, SDL_Window* window, SDL_Renderer
     m_input_manager(input_manager),
     m_tmp_layer(m_width, m_height, m_window, m_renderer)
 {
-    m_modules.push_back(std::make_unique<Recognition>(this, 1.0f, 1.0f));
+    m_modules.push_back(std::make_unique<Recognition>(this, 5.0f, 5.0f));
     m_modules.push_back(std::make_unique<Drawing>(this));
+
+    m_layers.emplace_back(m_width, m_height, m_window, m_renderer);
+    m_layers.front().Fill(255, 255, 255, 255);
 }
 
 void ImageEngine::SubscribeEvent(INPUTEVENT input_event, delegate function)

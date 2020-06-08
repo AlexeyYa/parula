@@ -3,7 +3,7 @@
 
 #ifdef _WIN32
 
-class FWindowsRealTimeStylusPlugin * g_pRTSHandler = nullptr;
+FWindowsRealTimeStylusPlugin * g_pRTSHandler = nullptr;
 IRealTimeStylus * g_pRTSStylus = nullptr;
 
 
@@ -95,7 +95,7 @@ HRESULT FWindowsRealTimeStylusPlugin::QueryInterface(const IID& InterfaceID, voi
     return E_NOINTERFACE;
 }
 
-HRESULT FWindowsRealTimeStylusPlugin::StylusDown(IRealTimeStylus*, const StylusInfo* StylusInfo, ULONG, LONG*, LONG**)
+HRESULT FWindowsRealTimeStylusPlugin::StylusDown(IRealTimeStylus* RealTimeStylus, const StylusInfo* StylusInfo, ULONG PacketSize, LONG* Packet, LONG**)
 {
     FTabletContextInfo* TabletContext = FindTabletContext(StylusInfo->tcid);
     if (TabletContext != nullptr)
@@ -107,11 +107,14 @@ HRESULT FWindowsRealTimeStylusPlugin::StylusDown(IRealTimeStylus*, const StylusI
 
 
     inputs[StylusInfo->cid] = std::make_shared<IStroke>(tbb::concurrent_vector<IInputState>(), device);
+    HandlePacket(RealTimeStylus, StylusInfo, 1, PacketSize, Packet);
+
     m_input_manager->FireEvent(INPUTEVENT::STROKE_START, std::reinterpret_pointer_cast<void*>(inputs[StylusInfo->cid]));
+
     return S_OK;
 }
 
-HRESULT FWindowsRealTimeStylusPlugin::StylusUp(IRealTimeStylus*, const StylusInfo* StylusInfo, ULONG, LONG*, LONG**)
+HRESULT FWindowsRealTimeStylusPlugin::StylusUp(IRealTimeStylus* RealTimeStylus, const StylusInfo* StylusInfo, ULONG PacketSize, LONG* Packet, LONG**)
 {
     FTabletContextInfo* TabletContext = FindTabletContext(StylusInfo->tcid);
     if (TabletContext != nullptr)
@@ -120,7 +123,9 @@ HRESULT FWindowsRealTimeStylusPlugin::StylusUp(IRealTimeStylus*, const StylusInf
         TabletContext->WindowsState.IsTouching = false;
         TabletContext->WindowsState.NormalPressure = 0;
     }
+    HandlePacket(RealTimeStylus, StylusInfo, 1, PacketSize, Packet);
     inputs[StylusInfo->cid]->completed.store(true);
+    inputs[StylusInfo->cid]->cv.notify_all();
     inputs.erase(StylusInfo->cid);
 
     return S_OK;
@@ -409,6 +414,7 @@ void FWindowsRealTimeStylusPlugin::HandlePacket(IRealTimeStylus*, const StylusIn
                        TabletContext->WindowsState.TiltX,
                        TabletContext->WindowsState.TiltY);
         inputs.at(StylusInfo->cid)->stroke.push_back(is);
+        inputs.at(StylusInfo->cid)->cv.notify_all();
     }
 }
 
@@ -439,7 +445,8 @@ void FWindowsRealTimeStylusPlugin::HiMetricToPixel(FTabletContextInfo* TabletCon
 HRESULT FWindowsRealTimeStylusPlugin::Packets(IRealTimeStylus* RealTimeStylus, const StylusInfo* StylusInfo,
                                               ULONG PacketCount, ULONG PacketBufferLength, LONG* Packets, ULONG*, LONG**)
 {
-    HandlePacket(RealTimeStylus, StylusInfo, PacketCount, PacketBufferLength, Packets);
+    for (ULONG i = 0; i < PacketCount; i++)
+        HandlePacket(RealTimeStylus, StylusInfo, PacketCount, PacketBufferLength, Packets);
     return S_OK;
 }
 

@@ -14,6 +14,7 @@ public:
     void* GetPixels();
     void FreePixels();
     int GetPitch();
+    void Fill(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 private:
     int m_width;
     int m_height;

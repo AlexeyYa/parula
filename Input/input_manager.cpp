@@ -35,11 +35,12 @@ void InputManager::EventLoop()
     while(m_running){
         //SDL_PumpEvents();
 
-        while(SDL_WaitEvent( &event )){
+        while(SDL_WaitEventTimeout( &event, 200 )){
             switch( event.type )
             {
             case SDL_QUIT:
                 m_running = false;
+                FireEvent(INPUTEVENT::QUIT, nullptr);
                 break;
 
 // Using RTS API for all inputs on windows
@@ -77,6 +78,7 @@ void InputManager::EventLoop()
             }
         }
     }
+    ReleaseRTS();
 }
 
 void InputManager::FireEvent(INPUTEVENT input_event, std::shared_ptr<void*> data) const

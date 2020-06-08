@@ -6,9 +6,6 @@
 #include "Modules/imodule.h"
 #include "Input/input_manager.h"
 
-#include "Modules/Recognition/rec_worker.h"
-#include "Modules/DrawPath/draw_path.h"
-
 #include <SDL2/SDL.h>
 #include <tbb/concurrent_vector.h>
 #include <memory>

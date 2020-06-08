@@ -36,6 +36,7 @@ struct StylusState : public IInputState
 };
 
 bool CreateRTS(HWND hWnd, InputManager* input_manager);
+void ReleaseRTS();
 
 /**
  * Packet types as derived from IRealTimeStylus::GetPacketDescriptionData.

@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(TBB CONFIG REQUIRED)
 find_package(Boost REQUIRED)
+find_package(OpenBLAS CONFIG REQUIRED)
 find_package(Threads)
 
 configure_file(bintray.json.in bintray.json)
@@ -27,8 +28,8 @@ add_executable(parula main.cpp
                        Graphics/texture.cpp
                        Input/input_manager.cpp
                        Input/StylusInput/stylus.cpp
-                       Modules/Recognition/rec_worker.cpp
-                       Modules/DrawPath/draw_path.cpp)
+                       Modules/Recognition/recognition.cpp
+                       Modules/DrawPath/draw_path.cpp "Modules/VectorGraphics/renderer.h" "Modules/VectorGraphics/renderer.cpp" "Modules/VectorGraphics/shapes.h" "Modules/Common/point.h")
 
 target_include_directories(parula PRIVATE ${PROJECT_SOURCE_DIR})
 
@@ -36,12 +37,14 @@ target_include_directories(parula PRIVATE ${PROJECT_SOURCE_DIR})
 if($ENV{TRAVIS_BUILD_NUMBER})
     target_link_libraries(parula PRIVATE ${SDL2_LIBRARIES}
                                          TBB::tbb
-                                         Threads::Threads)
+                                         Threads::Threads
+                                         OpenBLAS::OpenBLAS)
 else()
     target_link_libraries(parula PRIVATE SDL2::SDL2
                                          SDL2::SDL2main
                                          TBB::tbb
-                                         Threads::Threads)
+                                         Threads::Threads
+                                         OpenBLAS::OpenBLAS)
 endif()
 
 install(TARGETS parula DESTINATION bin)

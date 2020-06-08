@@ -7,17 +7,50 @@
 
 
 #include <iostream>
+
+EditorWindow::EditorWindow(int width, int height, bool fullscreen) :
+    m_width(width),
+    m_height(height),
+    m_fullscreen(fullscreen)
+{
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0){ throw; }
+
+    if (m_fullscreen)
+    {
+        SDL_DisplayMode dm;
+        if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
+            SDL_Log("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+            throw;
+        }
+
+        m_window = SDL_CreateWindow("Editor", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                              dm.w, dm.h, SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
+    }
+    else
+    {
+        m_window = SDL_CreateWindow("Editor", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                              m_width, m_height, SDL_WINDOW_SHOWN);
+    }
+    if (m_window == nullptr) {
+        SDL_Quit();
+        throw;
+    }
+
+    m_renderer = SDL_CreateRenderer(m_window, -1, 0);
+    SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
+
+    m_input = std::make_shared<InputManager>();
+    m_iengine = std::make_unique<ImageEngine>(m_width, m_height, m_window, m_renderer, m_input);
+
+    std::cout << "Window created" << std::endl;
+}
+
 bool EditorWindow::Show()
 {
-    std::cout << "Renderer Created" << std::endl;
     m_running = true;
 
-    std::cout << "PreRender" << std::endl;
     auto render_thread = std::thread(&EditorWindow::Render, this, 60.0f);
-// Events!
-    std::cout << "PreInput" << std::endl;
     m_input->Run();
-    std::cout << "PostInput" << std::endl;
 
     // Cleanup
     m_running = false;
@@ -48,6 +81,7 @@ void EditorWindow::Render(float Hz)
         Update();
 
         SDL_RenderClear(m_renderer);
+
         m_iengine->DrawFrame();
         SDL_RenderPresent(m_renderer);
 
