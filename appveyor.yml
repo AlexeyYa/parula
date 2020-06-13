@@ -17,6 +17,7 @@ before_build:
       .\bootstrap-vcpkg.bat -disableMetrics &
       vcpkg install sdl2:"%platform%"-windows &
       vcpkg install tbb:"%platform%"-windows &
+      vcpkg install dlib:"%platform%"-windows &
       cd %APPVEYOR_BUILD_FOLDER%
     )
   - cmake -G "Visual Studio 16 2019" -DBOOST_ROOT=C:\Libraries\boost_1_71_0 -DCMAKE_TOOLCHAIN_FILE:INTERNAL=C:\Tools\vcpkg\scripts\buildsystems\vcpkg.cmake .

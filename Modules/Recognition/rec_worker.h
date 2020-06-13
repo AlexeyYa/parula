@@ -65,6 +65,15 @@ private:
                     continue;
                 }
                 break;
+            case RPrediction::Ellipse:
+                if (CheckEllipsePoints(*std::static_pointer_cast<Shape::Ellipse>(m_prediction.shape),
+                    current,
+                    size))
+                {
+                    current = size - 1;
+                    continue;
+                }
+                break;
             default:
 
                 break;
@@ -73,7 +82,10 @@ private:
             // Line   A*x + B*y = C
             // data->stroke.front()  +  End
             // Line at leats 2*threshold px
-            PredictLine(0, size);
+            if (!PredictLine(0, size))
+            {
+                PredictEllipse(0, m_data->stroke.size());
+            }
 
             // Curve
             // data->stroke.front() + P1 + P2 + data->stroke.back()
@@ -87,7 +99,6 @@ private:
             current = size - 1;
 
         }
-        PredictEllipse(0, m_data->stroke.size());
         if (m_prediction.active == RPrediction::Line)
         {
             std::cout << "Line through ";
@@ -118,7 +129,6 @@ private:
         float y1 = line.start.Y;
         float x2 = line.end.X;
         float y2 = line.end.Y;
-
 
         auto len = sqrt((y2-y1)*(y2-y1) + (x2-x1)*(x2-x1));
         for (size_t i = first; i < last; i++)
@@ -167,10 +177,10 @@ private:
         }
     }
 
-    bool PredictBezier(size_t first, size_t last)
-    {
+    //bool PredictBezier(size_t first, size_t last)
+    //{
 
-    }
+    //}
 
     /*!
      * \brief CheckEllipsePoints checks if all points are within algebraic distance(a*x^2 + b*x*y + c*y^2 *d*x + e*y + f) on indecies [first, last)
@@ -181,41 +191,41 @@ private:
      */
     bool CheckEllipsePoints(Shape::Ellipse ellipse, size_t first, size_t last)
     {
-        float maxd = 0;
+        auto s = sin(-ellipse.phi);
+        auto c = cos(-ellipse.phi);
+        dlib::matrix<double, 2, 2> rot2d{ c, -s , s, c };
+
         for (size_t i = first; i < last; i++)
         {
-            dlib::matrix<double, 2> p{ m_data->stroke[i].X - ellipse.center.X ,
+            dlib::matrix<double, 2> p{ m_data->stroke[i].X - ellipse.center.X, 
                                        m_data->stroke[i].Y - ellipse.center.Y };
-            auto s = sin(-ellipse.phi);
-            auto c = cos(-ellipse.phi);
-            dlib::matrix<double, 2, 2> rot2d{ c, -s , s, c };
-            auto p_rot = dlib::dot(rot2d, p);
-            auto p_abs = abs(p_rot);
-
+            dlib::matrix<double, 2> p_rot = rot2d * p;
+            dlib::matrix<double, 2> p_abs = dlib::abs(p_rot);
             dlib::matrix<double, 2> t{ 0.707 , 0.707 };
-            dlib::matrix<double, 2> ss{ ellipse.rl , ellipse.rs };
-            auto ss_sub = (ss * ss)(0) - (ss * ss)(1);
 
+            dlib::matrix<double, 2> ss{ ellipse.rl , ellipse.rs };
+            auto ss_sub = (ss(0) * ss(0)) - (ss(1) * ss(1));
             dlib::matrix<double, 2> efac{ ss_sub, -ss_sub };
 
-            for (int i = 0; i < 3; i++)
+            dlib::matrix<double, 2> xy;
+            for (int k = 0; k < 3; k++)
             {
-                auto xy = ss * t;
-                auto e = efac * (t * t * t) / ss;
+                xy = dlib::pointwise_multiply(ss, t);
+                dlib::matrix<double, 2> pow_t{ t(0) * t(0) * t(0), t(1) * t(1) * t(1) };
+                auto e = dlib::pointwise_divide(dlib::pointwise_multiply(efac, pow_t), ss);
                 auto q = p_abs - e;
-                auto rq = dlib::norm(xy - e) / dlib::norm(q);
+                auto rq = dlib::length(xy - e) / dlib::length(q);
+                t = dlib::normalize(dlib::pointwise_divide(q * rq + e, ss));
             }
+            dlib::matrix<double, 2> p_edge{ xy(0) * (p_rot(0) >= 0 ? 1 : -1), xy(1) * (p_rot(1) >= 0 ? 1 : -1) };
+            auto dist = dlib::length(p_edge - p_rot);
 
-            maxd = maxd > dist ? maxd : dist;
-            if (i % 20 == 0)
-                std::cout << dist << std::endl;
-            /*if (dist > m_threshold_distance)
+            if (dist > m_threshold_distance)
             {
                 return false;
-            }*/
+            }
         }
 
-        std::cout << "maxdist: " << maxd << std::endl;
         return true;
     }
 
@@ -244,18 +254,6 @@ private:
             D2(i, 1) = m_data->stroke[i].Y ;
             D2(i, 2) = 1;
         }
-        /*D1.set_size(4, 3);
-        D2.set_size(4, 3);
-
-        for (size_t i = 0; i < 4; i++)
-        {
-            D1(i, 0) = points[i].X * points[i].X;
-            D1(i, 1) = points[i].X * points[i].Y;
-            D1(i, 2) = points[i].Y * points[i].Y;
-            D2(i, 0) = points[i].X;
-            D2(i, 1) = points[i].Y;
-            D2(i, 2) = 1;
-        }*/
 
         // Doesn't works well with auto for some reason
         dlib::matrix<double> S1 = dlib::trans(D1) * D1;

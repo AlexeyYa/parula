@@ -16,6 +16,7 @@ find_package(SDL2 CONFIG REQUIRED)
 find_package(TBB CONFIG REQUIRED)
 find_package(Boost REQUIRED)
 #find_package(OpenBLAS CONFIG REQUIRED)
+find_package(dlib CONFIG REQUIRED)
 find_package(Threads)
 
 configure_file(bintray.json.in bintray.json)
@@ -36,11 +37,13 @@ target_include_directories(parula PRIVATE ${PROJECT_SOURCE_DIR})
 
 if($ENV{TRAVIS_BUILD_NUMBER})
     target_link_libraries(parula PRIVATE ${SDL2_LIBRARIES}
+                                         dlib::dlib
                                          TBB::tbb
                                          Threads::Threads)
 else()
     target_link_libraries(parula PRIVATE SDL2::SDL2
                                          SDL2::SDL2main
+                                         dlib::dlib
                                          TBB::tbb
                                          Threads::Threads)
 endif()

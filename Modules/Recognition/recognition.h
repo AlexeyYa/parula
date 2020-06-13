@@ -6,6 +6,9 @@
 #include "Input/input_event.h"
 #include "Modules/imodule.h"
 #include "Graphics/image_engine.h"
+#include "Modules/VectorGraphics/shapes.h"
+
+#include <tbb/concurrent_queue.h>
 
 class Recognition : public IModule
 {
@@ -17,6 +20,7 @@ public:
 private:
     float m_threshold_angle;
     float m_threshold_distance;
+    tbb::concurrent_queue < std::shared_ptr<Shape::Shape> updateQueue;
 };
 
 #endif

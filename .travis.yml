@@ -11,7 +11,7 @@ before_install:
   - sudo apt-get install libboost1.70-dev doxygen doxygen-doc doxygen-latex doxygen-gui graphviz libsdl2-dev
   - echo "deb http://cz.archive.ubuntu.com/ubuntu focal main universe" | sudo tee -a  /etc/apt/sources.list
   - sudo apt-get update
-  - sudo apt-get install libtbb-dev
+  - sudo apt-get install libtbb-dev libdlib-dev
   - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 addons:
