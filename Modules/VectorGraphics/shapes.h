@@ -24,7 +24,7 @@ namespace Shs
 
     struct Shape
     {
-        Shape(Shape::Type T) : T(T) {}
+        Shape(Shs::Type T) : T(T) {}
 
         Type T;
     };

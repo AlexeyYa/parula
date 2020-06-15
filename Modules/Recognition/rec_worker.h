@@ -52,6 +52,8 @@ private:
     double prev_d_angle;
     double prev_d_d_angle;
 
+    double avg_angle;
+
     bool new_shape = true;
 
     size_t current = 0;
@@ -176,7 +178,7 @@ private:
                     continue;
                 if (!a)
                 {
-                    prev_angle = atan2(dy, dx);
+                    avg_angle = prev_angle = atan2(dy, dx);
                     a = true;
                 }
                 else if (!d_a)
