@@ -72,16 +72,16 @@ Functions</h2></td></tr>
 <tr class="separator:aa8b8d1e0a2122d06a9221ca43909dd3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0cb0c1b60c3e906328ea8c4194fdd929"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_c_make_lists_8txt.html#a0cb0c1b60c3e906328ea8c4194fdd929">project</a> (parula VERSION 0.1. $ENV{TRAVIS_BUILD_NUMBER} LANGUAGES CXX) elseif($ENV</td></tr>
 <tr class="separator:a0cb0c1b60c3e906328ea8c4194fdd929"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a96ea812fdd963d5769f3150dc44a502f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_c_make_lists_8txt.html#a96ea812fdd963d5769f3150dc44a502f">project</a> (parula VERSION 0.1. $ENV{APPVEYOR_BUILD_NUMBER} LANGUAGES CXX) else() project(parula VERSION 0.1.1 LANGUAGES CXX) endif() set(CMAKE_CXX_STANDARD 17) set(CMAKE_CXX_STANDARD_REQUIRED ON) find_package(SDL2 CONFIG REQUIRED) find_package(TBB CONFIG REQUIRED) find_package(Boost REQUIRED) find_package(Threads) configure_file(bintray.json.in bintray.json) include_directories($</td></tr>
-<tr class="separator:a96ea812fdd963d5769f3150dc44a502f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba4910004c7e323c8c65ad69c7615075"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_c_make_lists_8txt.html#aba4910004c7e323c8c65ad69c7615075">add_executable</a> (parula main.cpp UI/window.cpp Graphics/image_engine.cpp Graphics/texture.cpp Input/input_manager.cpp Input/StylusInput/stylus.cpp Modules/Recognition/rec_worker.cpp Modules/DrawPath/draw_path.cpp) target_include_directories(parula PRIVATE $</td></tr>
-<tr class="separator:aba4910004c7e323c8c65ad69c7615075"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a173b2ae95071cb05b940d2b05156aeef"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_c_make_lists_8txt.html#a173b2ae95071cb05b940d2b05156aeef">project</a> (parula VERSION 0.1. $ENV{APPVEYOR_BUILD_NUMBER} LANGUAGES CXX) else() project(parula VERSION 0.1.1 LANGUAGES CXX) endif() set(CMAKE_CXX_STANDARD 17) set(CMAKE_CXX_STANDARD_REQUIRED ON) find_package(SDL2 CONFIG REQUIRED) find_package(TBB CONFIG REQUIRED) find_package(Boost REQUIRED) find_package(dlib CONFIG REQUIRED) find_package(Threads) configure_file(bintray.json.in bintray.json) include_directories($</td></tr>
+<tr class="separator:a173b2ae95071cb05b940d2b05156aeef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f23d72297a9b7fc44f45f7891f85a0a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_c_make_lists_8txt.html#a9f23d72297a9b7fc44f45f7891f85a0a">add_executable</a> (parula main.cpp UI/window.cpp Graphics/image_engine.cpp Graphics/texture.cpp Input/input_manager.cpp Input/StylusInput/stylus.cpp Modules/Recognition/recognition.cpp Modules/DrawPath/draw_path.cpp &quot;Modules/VectorGraphics/renderer.h&quot; &quot;Modules/VectorGraphics/renderer.cpp&quot; &quot;Modules/VectorGraphics/shapes.h&quot; &quot;Modules/Common/point.h&quot;) target_include_directories(parula PRIVATE $</td></tr>
+<tr class="separator:a9f23d72297a9b7fc44f45f7891f85a0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a874336ddf9e7e65911809bd1dbdac9a9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_c_make_lists_8txt.html#a874336ddf9e7e65911809bd1dbdac9a9">if</a> ($ENV{TRAVIS_BUILD_NUMBER}) target_link_libraries(parula PRIVATE $</td></tr>
 <tr class="separator:a874336ddf9e7e65911809bd1dbdac9a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="aba4910004c7e323c8c65ad69c7615075"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba4910004c7e323c8c65ad69c7615075">&#9670;&nbsp;</a></span>add_executable()</h2>
+<a id="a9f23d72297a9b7fc44f45f7891f85a0a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f23d72297a9b7fc44f45f7891f85a0a">&#9670;&nbsp;</a></span>add_executable()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -89,8 +89,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">add_executable </td>
           <td>(</td>
-          <td class="paramtype">parula main.cpp UI/window.cpp Graphics/image_engine.cpp Graphics/texture.cpp Input/input_manager.cpp Input/StylusInput/stylus.cpp Modules/Recognition/rec_worker.cpp Modules/DrawPath/draw_path.&#160;</td>
-          <td class="paramname"><em>cpp</em></td><td>)</td>
+          <td class="paramtype">parula main.cpp UI/window.cpp Graphics/image_engine.cpp Graphics/texture.cpp Input/input_manager.cpp Input/StylusInput/stylus.cpp Modules/Recognition/recognition.cpp Modules/DrawPath/draw_path.cpp &quot;Modules/VectorGraphics/renderer.h&quot; &quot;Modules/VectorGraphics/renderer.cpp&quot; &quot;Modules/VectorGraphics/shapes.h&quot; &quot;Modules/Common/point.h&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -152,8 +152,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a96ea812fdd963d5769f3150dc44a502f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a96ea812fdd963d5769f3150dc44a502f">&#9670;&nbsp;</a></span>project() <span class="overload">[2/2]</span></h2>
+<a id="a173b2ae95071cb05b940d2b05156aeef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a173b2ae95071cb05b940d2b05156aeef">&#9670;&nbsp;</a></span>project() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
