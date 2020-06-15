@@ -11,6 +11,7 @@
 #include "Modules/VectorGraphics/shapes.h"
 
 #include <dlib/matrix.h>
+#include <dlib/matrix/matrix_utilities.h>
 #include <memory>
 #include <thread>
 #include <vector>

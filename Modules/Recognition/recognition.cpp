@@ -87,16 +87,12 @@ void Recognition::UpdateTextures()
 
                 x0 = xp(ptrE, 0);
                 y0 = yp(ptrE, 0);
-                // Drawing lines
+                // Drawing lines, have some strange spooky lines
                 for (float a = ptrE->alpha - ptrE->phi; a < ptrE->beta - ptrE->phi; a += step)
                 {
                     x1 = xp(ptrE, a);
                     y1 = yp(ptrE, a);
 
-                    if (abs(x1 - x0) > 20 || (y1 - y0) > 20)
-                    {
-                        std::cout << "LONG LINE" << std::endl;
-                    }
                     dlib::draw_line((int)x0, (int)y0, (int)x1, (int)y1, layer, dlib::rgb_alpha_pixel{ 255, 255, 255, 255 });
                     layer->FreePixels();
 
@@ -107,10 +103,6 @@ void Recognition::UpdateTextures()
                 x1 = xp(ptrE, ptrE->beta);
                 y1 = yp(ptrE, ptrE->beta);
 
-                if (abs(x1 - x0) > 20 || (y1 - y0) > 20)
-                {
-                    std::cout << "LONG LINE" << std::endl;
-                }
                 dlib::draw_line((int)x0, (int)y0, (int)x1, (int)y1, layer, dlib::rgb_alpha_pixel{ 255, 255, 255, 255 });
                 layer->FreePixels();
 
