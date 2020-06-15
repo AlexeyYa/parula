@@ -70,6 +70,10 @@ namespace Shs
         double rl;
         double rs;
         double phi;
+
+        // Angles for arc
+        double alpha;
+        double beta;
     };
 
     //Container<std::shared_ptr<Shape>>
