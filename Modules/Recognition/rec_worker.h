@@ -13,6 +13,7 @@
 #include <dlib/matrix.h>
 #include <memory>
 #include <thread>
+#include <vector>
 
 class RecWorker : public std::enable_shared_from_this<RecWorker>
 {
@@ -37,77 +38,135 @@ private:
     std::shared_ptr<IStroke> m_data;
     float m_threshold_distance;
     float m_threshold_angle;
-    RPrediction m_prediction;
 
+    std::vector<RPrediction> m_predictions{ 1 };
+    size_t pred_idx = 0;
+
+    double angle;
+    double d_angle;
+    double d_d_angle;
+
+    double prev_angle;
+    double prev_d_angle;
+    double prev_d_d_angle;
+
+    size_t current = 0;
+    size_t m_idx = 0;
 
     void WorkerThread(std::shared_ptr<RecWorker>)
     {
-        size_t current = 0;
+        auto self(shared_from_this());
+
+        bool new_shape = false;
         std::mutex mtx;
-        while(!m_data->completed)
+        while (!m_data->completed)
         {
             std::unique_lock<std::mutex> lck(mtx);
 
-            if (m_data->stroke.size() == current + 1)
-                m_data->cv.wait(lck, [&]{ return true; });
+            // Wait for data
+            if (m_data->stroke.size() <= current + 1)
+                m_data->cv.wait(lck, [&] { return true; });
 
             // Save size to avoid race conditions
             size_t size = m_data->stroke.size();
 
-            // Check if fits current prediction
-            switch (m_prediction.active) {
-            case RPrediction::Line:
-                if (CheckLinePoints(*std::static_pointer_cast<Shape::Line>(m_prediction.shape),
-                                    current,
-                                    size))
-                {
-                    current = size - 1;
-                    continue;
-                }
-                break;
-            case RPrediction::Ellipse:
-                if (CheckEllipsePoints(*std::static_pointer_cast<Shape::Ellipse>(m_prediction.shape),
-                    current,
-                    size))
-                {
-                    current = size - 1;
-                    continue;
-                }
-                break;
-            default:
+            // Skip if only few points
+            if (size - m_idx < 6)
+                continue;
 
-                break;
-            }
+            std::cout << "c: " << current << " i: " << m_idx << " s: " << size << std::endl;
 
-            // Line   A*x + B*y = C
-            // data->stroke.front()  +  End
-            // Line at leats 2*threshold px
-            if (!PredictLine(0, size))
+            //// Init angles for new shape
+            //if (current == m_idx)
+            //{
+            //    double angle0 = atan2(m_data->stroke[m_idx + 1].X - m_data->stroke[m_idx].X,
+            //                          m_data->stroke[m_idx + 1].Y - m_data->stroke[m_idx].Y);
+            //    double angle1 = atan2(m_data->stroke[m_idx + 2].X - m_data->stroke[m_idx + 1].X,
+            //                          m_data->stroke[m_idx + 2].Y - m_data->stroke[m_idx + 1].Y);
+            //    prev_angle = atan2(m_data->stroke[m_idx + 3].X - m_data->stroke[m_idx + 2].X,
+            //                       m_data->stroke[m_idx + 3].Y - m_data->stroke[m_idx + 2].Y);
+            //    prev_d_angle = prev_angle - angle1;
+            //    prev_d_d_angle = prev_d_angle - (angle1 - angle0);
+
+            //    current = 3;
+
+            //    //std::cout << "pa: " << prev_angle << " pb: " << prev_d_angle << " pc: " << prev_d_d_angle << std::endl;
+
+            //}
+
+            // Check angle
+            //for (size_t i = current; i < size - 1; i++)
+            //{
+            //    angle = atan2(m_data->stroke[i + 1].X - m_data->stroke[i].X,
+            //        m_data->stroke[i + 1].Y - m_data->stroke[i].Y);
+            //    d_angle = angle - prev_angle;
+            //    d_d_angle = d_angle - prev_d_angle;
+
+            //    if (abs(d_d_angle - prev_d_d_angle) > m_threshold_angle)
+            //    {
+            //        size = i;
+            //        new_shape = true;
+            //        //std::cout << "break" << std::endl;
+            //        break;
+            //    }
+
+            //    prev_angle = angle;
+            //    prev_d_angle = d_angle;
+            //    prev_d_d_angle = d_d_angle;
+
+            //    //std::cout << "pa: " << prev_angle << " pb: " << prev_d_angle <<  " pc: " << prev_d_d_angle << std::endl;
+            //}
+
+            // Check if fits current prediction and update
+            if (CheckPrediction(m_idx, size))
             {
-                PredictEllipse(0, m_data->stroke.size());
+                continue;
             }
 
-            // Curve
-            // data->stroke.front() + P1 + P2 + data->stroke.back()
-            // find P1, P2 (4 unknowns)
-            // (1-t)^3*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3
-
-            // If not fits try Ellipse
-            // 5 unknowns
-
-            // Polyline/polycurve Check angles(~15 deg)
+            if (!PredictShape(m_idx, size))
+            {
+                // Next shape if prediction fails
+                m_idx = m_predictions[pred_idx].end;
+                std::cout << "m_pred.end " << m_predictions[pred_idx].end << std::endl;
+                m_predictions.emplace_back();
+                pred_idx++;
+            }
+            
             current = size - 1;
 
+            //prev_angle = angle;
+            //prev_d_angle = d_angle;
+            //prev_d_d_angle = d_d_angle;
         }
-        if (m_prediction.active == RPrediction::Line)
+
+        std::cout << "End\nPredSize" << m_predictions.size() << "\n" << std::endl;
+
+        for (auto& sh : m_predictions)
         {
-            std::cout << "Line through ";
-            for (size_t i = 0; i < m_data->stroke.size(); i += m_data->stroke.size() / 5)
-            {
-                std::cout << "P" << i << "(" << m_data->stroke[i].X << ";" << m_data->stroke[i].Y << ")" << std::endl;
+            std::shared_ptr<Shape::Line> ptr;
+            std::shared_ptr<Shape::Ellipse> ptrE;
+            switch (sh.active) {
+            case RPrediction::Line:
+                std::cout << "Line through ";
+                ptr = std::static_pointer_cast<Shape::Line>(sh.shape);
+
+                std::cout << ptr->start.X << "," << ptr->start.Y << " " << ptr->end.X << "," << ptr->end.Y << std::endl;
+                break;
+            case RPrediction::Ellipse:
+                std::cout << "Ellipse ";
+                ptrE = std::static_pointer_cast<Shape::Ellipse>(sh.shape);
+
+                std::cout << "C:" << ptrE->center.X << "," << ptrE->center.Y
+                    << " RL:" << ptrE->rl << " RS:" << ptrE->rs << " phi:" << ptrE->phi << std::endl;
+                break;
+            default:
+                //std::cout << "Empty" << std::endl;
+                break;
             }
         }
-        std::cout << "End of stroke rec " << current << " " << m_data->stroke.size() << std::endl;
+        m_predictions.clear();
+        std::cout << "Clear\n" << std::endl;
+
         // Ellipse  Check ends(closed/open)
 
         // Polyline Check ends(closed/open), angles and sides
@@ -117,24 +176,98 @@ private:
         // Save for next texture update
     }
 
+    bool CheckPrediction(size_t start, size_t end)
+    {
+        switch (m_predictions[pred_idx].active) {
+        case RPrediction::Line:
+            if (CheckLinePoints(*std::static_pointer_cast<Shape::Line>(m_predictions[pred_idx].shape),
+                start,
+                end))
+            {
+                std::static_pointer_cast<Shape::Line>(m_predictions[pred_idx].shape)->end =
+                    Shape::Point(m_data->stroke[end - 1].X, m_data->stroke[end - 1].Y);
+                current = m_predictions[pred_idx].end = end - 1;
+                std::cout << "CPEnd " << end - 1 << " X: "<< m_data->stroke[end - 1].X << 
+                    " Y:" << m_data->stroke[end - 1].Y << std::endl;
+                std::cout << "LX: " << std::static_pointer_cast<Shape::Line>(m_predictions[pred_idx].shape)->end.X <<
+                    " LY: " << std::static_pointer_cast<Shape::Line>(m_predictions[pred_idx].shape)->end.Y << std::endl;
+                return true;
+            }
+        case RPrediction::Ellipse:
+            if (CheckEllipsePoints(*std::static_pointer_cast<Shape::Ellipse>(m_predictions[pred_idx].shape),
+                start,
+                end))
+            {
+                current = m_predictions[pred_idx].end = end - 1;
+                std::cout << "CPEnd " << end - 1 << std::endl;
+                return true;
+            }
+        default:
+            break;
+        }
+        return false;
+    }
+
+    bool PredictShape(size_t start, size_t end)
+    {
+        if (!PredictLine(start, end))
+        {
+            //std::cout << "not line" << std::endl;
+            if (!PredictEllipse(start, end))
+            {
+                //std::cout << "not ellipse" << std::endl;
+                // Complete shape and start new
+                std::shared_ptr<Shape::Line> ptr;
+                std::shared_ptr<Shape::Ellipse> ptrE;
+                switch (m_predictions[pred_idx].active) {
+                case RPrediction::Line:
+                    //std::cout << "Line through ";
+                    //ptr = std::static_pointer_cast<Shape::Line>(m_predictions[pred_idx].shape);
+
+                    //std::cout << ptr->start.X << "," << ptr->start.Y << " " << ptr->end.X << "," << ptr->end.Y << std::endl;
+                    break;
+                case RPrediction::Ellipse:
+                    std::cout << "Ellipse ";
+                    ptrE = std::static_pointer_cast<Shape::Ellipse>(m_predictions[pred_idx].shape);
+
+                    std::cout << "C:" << ptrE->center.X << "," << ptrE->center.Y
+                        << " RL:" << ptrE->rl << " RS:" << ptrE->rs << " phi:" << ptrE->phi << std::endl;
+                    break;
+                default:
+                    break;
+                }
+
+                return false;
+            }
+        }
+    }
+
     /*!
      * \brief CheckLinePoints checks if all points are within distance from line for indecies [first, last)
      * \param first index
      * \param last index
      * \return check result
      */
-    bool CheckLinePoints(Shape::Line line, size_t first, size_t last)
+    bool CheckLinePoints(const Shape::Line& line, size_t first, size_t last)
     {
         float x1 = line.start.X;
         float y1 = line.start.Y;
         float x2 = line.end.X;
         float y2 = line.end.Y;
 
-        auto len = sqrt((y2-y1)*(y2-y1) + (x2-x1)*(x2-x1));
-        for (size_t i = first; i < last; i++)
+        // Shortline check
+        if (abs(m_data->stroke[last - 1].X - x1) < 2 * m_threshold_distance &&
+            abs(m_data->stroke[last - 1].Y - y1) < 2 * m_threshold_distance)
+        {
+            return true;
+        }
+
+        auto len = sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
+
+        for (size_t i = first + 1; i < last; i++)
         {
             auto& p = m_data->stroke[i];
-            float dist = abs((y2 - y1) * p.X - (x2 - x1) * p.Y +x2*y1 - y2*x1)/len;
+            float dist = abs((y2 - y1) * p.X - (x2 - x1) * p.Y + x2 * y1 - y2 * x1) / len;
             if (dist > m_threshold_distance)
             {
                 return false;
@@ -155,21 +288,24 @@ private:
         float y1 = m_data->stroke[first].Y;
         float x2 = m_data->stroke[last - 1].X;
         float y2 = m_data->stroke[last - 1].Y;
-        if (abs(x1 - x2) > 2*m_threshold_distance ||
-                abs(y1 - y2) > 2*m_threshold_distance) // Short line check
+
+        // Shortline check
+        if (abs(x2 - x1) < 2*m_threshold_distance && abs(y2 - y1) < 2*m_threshold_distance)
         {
-            if (CheckLinePoints(Shape::Line(Shape::Point(x1, y1), Shape::Point(x2, y2)), 1, m_data->stroke.size() - 1))
-            {
-                m_prediction.active = RPrediction::Line;
-                m_prediction.shape = std::make_shared<Shape::Line>(Shape::Point(x1, y1), Shape::Point(x2, y2));
-                return true;
-            }
-            else
-            {
-                m_prediction.active = RPrediction::Unknown;
-                m_prediction.shape = nullptr;
-                return false;
-            }
+            m_predictions[pred_idx].active = RPrediction::Line;
+            m_predictions[pred_idx].end = last - 1;
+            //std::cout << "End " << last - 1 << std::endl;
+            m_predictions[pred_idx].shape = std::make_shared<Shape::Line>(Shape::Point(x1, y1), Shape::Point(x2, y2));
+            return true;
+        }
+
+        if (CheckLinePoints(Shape::Line(Shape::Point(x1, y1), Shape::Point(x2, y2)), first, last))
+        {
+            m_predictions[pred_idx].active = RPrediction::Line;
+            m_predictions[pred_idx].end = last - 1;
+            std::cout << "End " << last - 1 << std::endl;
+            m_predictions[pred_idx].shape = std::make_shared<Shape::Line>(Shape::Point(x1, y1), Shape::Point(x2, y2));
+            return true;
         }
         else
         {
@@ -189,7 +325,7 @@ private:
      * \return check result
      * https://github.com/0xfaded/ellipse_demo/issues/1
      */
-    bool CheckEllipsePoints(Shape::Ellipse ellipse, size_t first, size_t last)
+    bool CheckEllipsePoints(const Shape::Ellipse& ellipse, size_t first, size_t last)
     {
         auto s = sin(-ellipse.phi);
         auto c = cos(-ellipse.phi);
@@ -197,7 +333,7 @@ private:
 
         for (size_t i = first; i < last; i++)
         {
-            dlib::matrix<double, 2> p{ m_data->stroke[i].X - ellipse.center.X, 
+            dlib::matrix<double, 2> p{ m_data->stroke[i].X - ellipse.center.X,
                                        m_data->stroke[i].Y - ellipse.center.Y };
             dlib::matrix<double, 2> p_rot = rot2d * p;
             dlib::matrix<double, 2> p_abs = dlib::abs(p_rot);
@@ -239,19 +375,18 @@ private:
      */
     bool PredictEllipse(size_t first, size_t last)
     {
-        //std::vector<Shape::Point> points{ {0, 1}, {0, -1}, {-1, 0}, {1, 0} };
         dlib::matrix<double> D1;
         dlib::matrix<double> D2;
         D1.set_size(last - first, 3);
         D2.set_size(last - first, 3);
 
-        for (size_t i = first; i < last; i++)
+        for (size_t i = 0; i < last - first; i++)
         {
-            D1(i, 0) = m_data->stroke[i].X * m_data->stroke[i].X;
-            D1(i, 1) = m_data->stroke[i].X * m_data->stroke[i].Y;
-            D1(i, 2) = m_data->stroke[i].Y * m_data->stroke[i].Y;
-            D2(i, 0) = m_data->stroke[i].X ;
-            D2(i, 1) = m_data->stroke[i].Y ;
+            D1(i, 0) = m_data->stroke[i + first].X * m_data->stroke[i + first].X;
+            D1(i, 1) = m_data->stroke[i + first].X * m_data->stroke[i + first].Y;
+            D1(i, 2) = m_data->stroke[i + first].Y * m_data->stroke[i + first].Y;
+            D2(i, 0) = m_data->stroke[i + first].X;
+            D2(i, 1) = m_data->stroke[i + first].Y;
             D2(i, 2) = 1;
         }
 
@@ -263,14 +398,14 @@ private:
         dlib::matrix<double> invers3 = dlib::inv(S3);
         dlib::matrix<double> trans2 = dlib::trans(S2);
 
-        dlib::matrix<double> T = - invers3 * trans2;
+        dlib::matrix<double> T = -invers3 * trans2;
         dlib::matrix<double> M = S1 + S2 * T;
 
         dlib::matrix<double, 3, 3> M2;
         dlib::set_rowm(M2, 0) = dlib::rowm(M, 2) / 2;
-        dlib::set_rowm(M2, 1) = - dlib::rowm(M, 1);
+        dlib::set_rowm(M2, 1) = -dlib::rowm(M, 1);
         dlib::set_rowm(M2, 2) = dlib::rowm(M, 0) / 2;
-        
+
         dlib::eigenvalue_decomposition<dlib::matrix<double>> eigen(M2);
         auto evec = eigen.get_v();
         dlib::matrix<double, 3, 1> al;
@@ -284,6 +419,7 @@ private:
                 al(2, 0) = evec(2, i).real();
             }
         }
+
         dlib::matrix<double> tal = T * al;
         dlib::matrix<double, 6, 1> a;
         a(0) = al(0);
@@ -293,13 +429,19 @@ private:
         a(4) = tal(1);
         a(5) = tal(2);
 
-
         a = dlib::normalize(a);
 
-        CheckEllipsePoints(Shape::Ellipse{ a(0), a(1), a(2), a(3), a(4), a(5) }, first, last);
-        
+        if (CheckEllipsePoints(Shape::Ellipse{ a(0), a(1), a(2), a(3), a(4), a(5) }, first, last))
+        {
+            m_predictions[pred_idx].active = RPrediction::Ellipse;
+            m_predictions[pred_idx].end = last - 1;
 
-        return true;
+            std::cout << "End ell" << last - 1 << std::endl;
+            m_predictions[pred_idx].shape = std::make_shared< Shape::Ellipse>(a(0), a(1), a(2), a(3), a(4), a(5));
+            return true;
+        }
+
+        return false;
     }
 };
 

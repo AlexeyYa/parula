@@ -20,7 +20,8 @@ struct RPrediction
     ShapeID active = RPrediction::Unknown;
 
     std::shared_ptr<Shape::Shape> shape = nullptr;
-    std::vector<float> angles;
+    size_t start;
+    size_t end;
 };
 
 #endif

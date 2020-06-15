@@ -20,7 +20,7 @@ public:
 private:
     float m_threshold_angle;
     float m_threshold_distance;
-    tbb::concurrent_queue < std::shared_ptr<Shape::Shape> updateQueue;
+    tbb::concurrent_queue < std::shared_ptr<Shape::Shape> > updateQueue;
 };
 
 #endif

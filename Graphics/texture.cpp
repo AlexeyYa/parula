@@ -1,7 +1,7 @@
 
 #include "Graphics/texture.h"
 
-LTexture::LTexture(int width, int height, SDL_Window* window, SDL_Renderer* renderer) :
+LTexture::LTexture(int width, int height, SDL_Renderer* renderer) :
     m_width(width),
     m_height(height),
     m_renderer(renderer),

@@ -7,7 +7,7 @@
 class LTexture
 {
 public:
-    LTexture(int width, int height, SDL_Window* window, SDL_Renderer* renderer);
+    LTexture(int width, int height, SDL_Renderer* renderer);
     ~LTexture();
     void Render() const;
 
