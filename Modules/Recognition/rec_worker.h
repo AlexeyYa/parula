@@ -38,6 +38,7 @@ private:
     std::shared_ptr<IStroke> m_data;
     float m_threshold_distance;
     float m_threshold_angle;
+    double m_eps = 0.1;
 
     std::vector<RPrediction> m_predictions{ 1 };
     size_t pred_idx = 0;
@@ -74,7 +75,7 @@ private:
             if (size - m_idx < 6)
                 continue;
 
-            std::cout << "c: " << current << " i: " << m_idx << " s: " << size << std::endl;
+            //std::cout << "c: " << current << " i: " << m_idx << " s: " << size << std::endl;
 
             //// Init angles for new shape
             //if (current == m_idx)
@@ -193,19 +194,18 @@ private:
                 std::static_pointer_cast<Shape::Line>(m_predictions[pred_idx].shape)->end =
                     Shape::Point(m_data->stroke[end - 1].X, m_data->stroke[end - 1].Y);
                 current = m_predictions[pred_idx].end = end - 1;
-                std::cout << "CPEnd " << end - 1 << " X: "<< m_data->stroke[end - 1].X << 
-                    " Y:" << m_data->stroke[end - 1].Y << "\n";
                 return true;
             }
+            break;
         case RPrediction::Ellipse:
             if (CheckEllipsePoints(*std::static_pointer_cast<Shape::Ellipse>(m_predictions[pred_idx].shape),
                 start,
                 end))
             {
                 current = m_predictions[pred_idx].end = end - 1;
-                std::cout << "CPEnd " << end - 1 << std::endl;
                 return true;
             }
+            break;
         default:
             break;
         }
@@ -218,12 +218,16 @@ private:
         {
             if (PredictLine(start, end))
                 return true;
+            else
+                m_predictions[pred_idx].active = RPrediction::Ellipse;
         }
 
         if (m_predictions[pred_idx].active <= RPrediction::Ellipse)
         {
             if (PredictEllipse(start, end))
                 return true;
+            else
+                m_predictions[pred_idx].active = RPrediction::Bezier;
         }
 
         //if (!PredictLine(start, end))
@@ -304,8 +308,6 @@ private:
         float y1 = m_data->stroke[first].Y;
         float x2 = m_data->stroke[last - 1].X;
         float y2 = m_data->stroke[last - 1].Y;
-
-        std::cout << x1 << ',' << y1 << ' ' << x2 << ',' << y2 << std::endl;
 
         // Shortline check
         if (abs(x2 - x1) < 2*m_threshold_distance && abs(y2 - y1) < 2*m_threshold_distance)
@@ -452,7 +454,6 @@ private:
             m_predictions[pred_idx].active = RPrediction::Ellipse;
             m_predictions[pred_idx].end = last - 1;
 
-            std::cout << "End ell" << last - 1 << std::endl;
             m_predictions[pred_idx].shape = std::make_shared< Shape::Ellipse>(a(0), a(1), a(2), a(3), a(4), a(5));
             return true;
         }

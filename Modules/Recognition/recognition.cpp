@@ -68,7 +68,7 @@ void Recognition::UpdateTextures()
             double y1;
             auto xp = [](std::shared_ptr<Shape::Ellipse> ell, float a) { return ell->rl * cos(a) * cos(ell->phi) - ell->rs * sin(a) * sin(ell->phi) + ell->center.X; };
             auto yp = [](std::shared_ptr<Shape::Ellipse> ell, float a) { return ell->rl * cos(a) * sin(ell->phi) + ell->rs * sin(a) * cos(ell->phi) + ell->center.Y; };
-            switch (sh->type)
+            switch (sh->T)
             {
             case Shape::Type::Line:
                 ptr = std::static_pointer_cast<Shape::Line>(sh);

@@ -24,9 +24,9 @@ namespace Shape
 
     struct Shape
     {
-        Shape(Shape::Type type) : type(type) {}
+        Shape(Shape::Type T) : T(T) {}
 
-        Shape::Type type;
+        Shape::Type T;
     };
 
     struct Line : public Shape
