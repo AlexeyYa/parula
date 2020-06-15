@@ -57,29 +57,29 @@ void Recognition::UpdateTextures()
     }*/
     while (!updateQueue.empty())
     {
-        std::shared_ptr<Shape::Shape> sh;
+        std::shared_ptr<Shs::Shape> sh;
         if (updateQueue.try_pop(sh))
         {
-            std::shared_ptr<Shape::Line> ptr;
-            std::shared_ptr<Shape::Ellipse> ptrE;
+            std::shared_ptr<Shs::Line> ptr;
+            std::shared_ptr<Shs::Ellipse> ptrE;
             double x0;
             double y0;
             double x1;
             double y1;
-            auto xp = [](std::shared_ptr<Shape::Ellipse> ell, float a) { return ell->rl * cos(a) * cos(ell->phi) - ell->rs * sin(a) * sin(ell->phi) + ell->center.X; };
-            auto yp = [](std::shared_ptr<Shape::Ellipse> ell, float a) { return ell->rl * cos(a) * sin(ell->phi) + ell->rs * sin(a) * cos(ell->phi) + ell->center.Y; };
+            auto xp = [](std::shared_ptr<Shs::Ellipse> ell, float a) { return ell->rl * cos(a) * cos(ell->phi) - ell->rs * sin(a) * sin(ell->phi) + ell->center.X; };
+            auto yp = [](std::shared_ptr<Shs::Ellipse> ell, float a) { return ell->rl * cos(a) * sin(ell->phi) + ell->rs * sin(a) * cos(ell->phi) + ell->center.Y; };
             switch (sh->T)
             {
-            case Shape::Type::Line:
-                ptr = std::static_pointer_cast<Shape::Line>(sh);
+            case Shs::Type::Line:
+                ptr = std::static_pointer_cast<Shs::Line>(sh);
 
                 // Wrong color!!!
                 dlib::draw_line((int)ptr->start.X, (int)ptr->start.Y, (int)ptr->end.X, (int)ptr->end.Y, layer, dlib::rgb_alpha_pixel{255, 255, 255, 255});
                 layer->FreePixels();
 
                 break;
-            case Shape::Type::Ellipse:
-                ptrE = std::static_pointer_cast<Shape::Ellipse>(sh);
+            case Shs::Type::Ellipse:
+                ptrE = std::static_pointer_cast<Shs::Ellipse>(sh);
 
                 // Parametric form
 
@@ -113,7 +113,7 @@ void Recognition::UpdateTextures()
 }
 
 
-void Recognition::AddShape(std::shared_ptr<Shape::Shape> sh)
+void Recognition::AddShape(std::shared_ptr<Shs::Shape> sh)
 {
     updateQueue.emplace(sh);
 }

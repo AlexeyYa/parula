@@ -19,7 +19,7 @@ struct RPrediction
 
     ShapeID active = RPrediction::Unknown;
 
-    std::shared_ptr<Shape::Shape> shape = nullptr;
+    std::shared_ptr<Shs::Shape> shape = nullptr;
     size_t start;
     size_t end;
 };

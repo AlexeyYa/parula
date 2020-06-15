@@ -17,11 +17,11 @@ public:
 
     void HandleEvent(std::shared_ptr<void*> data);
     void UpdateTextures() override final;
-    void AddShape(std::shared_ptr<Shape::Shape> sh);
+    void AddShape(std::shared_ptr<Shs::Shape> sh);
 private:
     float m_threshold_distance;
     float m_threshold_angle;
-    tbb::concurrent_queue < std::shared_ptr<Shape::Shape> > updateQueue;
+    tbb::concurrent_queue < std::shared_ptr<Shs::Shape> > updateQueue;
 };
 
 #endif

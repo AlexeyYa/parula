@@ -5,7 +5,7 @@
 #include <memory>
 #include <math.h>
 
-namespace Shape
+namespace Shs
 {
     struct Point
     {
@@ -26,12 +26,12 @@ namespace Shape
     {
         Shape(Shape::Type T) : T(T) {}
 
-        Shape::Type T;
+        Type T;
     };
 
     struct Line : public Shape
     {
-        Line(Point start, Point end) : Shape::Shape(Type::Line), start(start), end(end) {}
+        Line(Point start, Point end) : Shape(Type::Line), start(start), end(end) {}
         Point start;
         Point end;
     };
@@ -45,7 +45,7 @@ namespace Shape
 
     struct Ellipse : public Shape
     {
-        Ellipse(double a, double b, double c, double d, double e, double f) : Shape::Shape(Type::Ellipse), a(a), b(b), c(c), d(d), e(e), f(f)
+        Ellipse(double a, double b, double c, double d, double e, double f) : Shape(Type::Ellipse), a(a), b(b), c(c), d(d), e(e), f(f)
         {
             double tmp1 = b * b - 4 * a * c;
             double tmp2 = sqrt((a - c) * (a - c) + b * b);
