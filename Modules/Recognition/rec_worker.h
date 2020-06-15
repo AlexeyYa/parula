@@ -44,16 +44,6 @@ private:
     std::vector<RPrediction> m_predictions{ 1 };
     size_t pred_idx = 0;
 
-    double angle;
-    double d_angle;
-    double d_d_angle;
-
-    double prev_angle;
-    double prev_d_angle;
-    double prev_d_d_angle;
-
-    double avg_angle;
-
     bool new_shape = true;
 
     size_t current = 0;
@@ -112,8 +102,8 @@ private:
         {
             std::shared_ptr<Shs::Line> ptr;
             std::shared_ptr<Shs::Ellipse> ptrE;
-            switch (sh.active) {
-            case RPrediction::Line:
+            switch (sh.shape->T) {
+            case Shs::Type::Line:
                 std::cout << "Line through ";
                 ptr = std::static_pointer_cast<Shs::Line>(sh.shape);
 
@@ -121,7 +111,7 @@ private:
 
                 std::cout << ptr->start.X << "," << ptr->start.Y << " " << ptr->end.X << "," << ptr->end.Y << std::endl;
                 break;
-            case RPrediction::Ellipse:
+            case Shs::Type::Ellipse:
                 std::cout << "Ellipse ";
                 ptrE = std::static_pointer_cast<Shs::Ellipse>(sh.shape);
 
@@ -149,6 +139,17 @@ private:
         
     }
 
+    double angle;
+    double d_angle;
+    double d_d_angle;
+
+    double prev_angle;
+    double prev_d_angle;
+    double prev_d_d_angle;
+
+    double ang0;
+    bool is_line = true;
+
     bool CheckAngle()
     {
         // Init angles for new shape
@@ -164,7 +165,6 @@ private:
 
         if (new_shape)
         {
-            std::cout << "CheckA1" << std::endl;
             bool a = false;
             bool d_a = false;
             bool d_d_a = false;
@@ -178,7 +178,7 @@ private:
                     continue;
                 if (!a)
                 {
-                    avg_angle = prev_angle = atan2(dy, dx);
+                    ang0 = prev_angle = atan2(dy, dx);
                     a = true;
                 }
                 else if (!d_a)
@@ -200,6 +200,8 @@ private:
                     px = m_data->stroke[i].X;
                     py = m_data->stroke[i].Y;
 
+                    //ang0 = atan2(m_data->stroke[i].Y - m_data->stroke[m_idx].Y, m_data->stroke[i].X - m_data->stroke[m_idx].X);
+
                     current = i;
                     new_shape = false;
 
@@ -216,8 +218,6 @@ private:
             return false;
         }
 
-        std::cout << "CheckA2" << std::endl;
-
         // Check angle
         for (size_t i = current + 1; i < size; i++)
         {
@@ -232,15 +232,23 @@ private:
             d_angle = angle - prev_angle;
             d_d_angle = d_angle - prev_d_angle;
 
-            std::cout << "pa: " << prev_angle << " p_d_a: " << prev_d_angle << " p_d_d_a: " << prev_d_d_angle << std::endl;
-            std::cout << "a: " << angle << " d_a: " << d_angle << " d_d_a: " << d_d_angle << std::endl;
+            //std::cout << "pa: " << prev_angle << " p_d_a: " << prev_d_angle << " p_d_d_a: " << prev_d_d_angle << std::endl;
+            //std::cout << "a: " << angle << " d_a: " << d_angle << " d_d_a: " << d_d_angle << std::endl;
 
-            if (abs(d_d_angle - prev_d_d_angle) > m_threshold_angle)
+            
+
+            if (is_line && abs(d_angle - prev_d_angle) > m_threshold_angle)
             {
                 size = i;
                 new_shape = true;
-                std::cout << "d_d_angle break" << std::endl;
+                std::cout << "d_angle break" << std::endl;
                 break;
+            }
+
+            if (abs(angle - ang0) > m_threshold_angle)
+            {
+                std::cout << "Angle diff " << angle << " a0 " << ang0 << std::endl;
+                is_line = false;
             }
 
             prev_angle = angle;
@@ -291,7 +299,7 @@ private:
                 m_predictions[pred_idx].active = RPrediction::Ellipse;
         }
 
-        if (m_predictions[pred_idx].active <= RPrediction::Ellipse)
+        if (m_predictions[pred_idx].active <= RPrediction::Ellipse && !is_line)
         {
             if (PredictEllipse(start, end))
                 return true;

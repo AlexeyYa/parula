@@ -58,8 +58,8 @@ void Drawing::DrawLine(Point start, Point end) const
     float dy = end.Y - start.Y;
     if (dx < 1 && dy < 1)
     {
-        m_pixels[(int)start.X + (int)start.Y * m_pitch / 4] = 255;
-        m_pixels[(int)end.X + (int)end.Y * m_pitch / 4] = 255;
+        m_pixels[(int)start.X + (int)start.Y * m_pitch / 4] = 0x009900AA;
+        m_pixels[(int)end.X + (int)end.Y * m_pitch / 4] = 0x009900AA;
         return;
     }
 
@@ -75,7 +75,7 @@ void Drawing::DrawLine(Point start, Point end) const
     float Y = start.Y;
     for (int i = 0; i <= steps; i++)
     {
-        m_pixels[(int)X + (int)Y * m_pitch / 4] = 255;  // put pixel at (X,Y)
+        m_pixels[(int)X + (int)Y * m_pitch / 4] = 0x00FF00AA;  // put pixel at (X,Y)
         X += Xinc;           // increment in x at each step
         Y += Yinc;           // increment in y at each step
     }

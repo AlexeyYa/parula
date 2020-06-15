@@ -78,7 +78,9 @@ void InputManager::EventLoop()
             }
         }
     }
+#ifdef _WIN32
     ReleaseRTS();
+#endif
 }
 
 void InputManager::FireEvent(INPUTEVENT input_event, std::shared_ptr<void*> data) const
