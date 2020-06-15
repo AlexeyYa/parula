@@ -11,7 +11,7 @@
 
 long num_rows(LTexture* texture) { return texture->m_height; }
 long num_columns(LTexture* texture) { return texture->m_width; }
-void set_image_size(LTexture* texture) {}
+void set_image_size(LTexture*) {}
 void* image_data(LTexture* texture)
 {
     return texture->GetPixels();
