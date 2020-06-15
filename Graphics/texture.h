@@ -15,9 +15,9 @@ public:
     void FreePixels();
     int GetPitch();
     void Fill(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+    const int m_width;
+    const int m_height;
 private:
-    int m_width;
-    int m_height;
     SDL_Renderer* m_renderer;
 
     SDL_Texture* m_texture;

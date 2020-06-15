@@ -10,7 +10,7 @@ Drawing::Drawing(ImageEngine* image_engine) :
     m_pixels(nullptr),
     m_pitch(0)
 {
-    m_iengine->SubscribeEvent(INPUTEVENT::STROKE_START, boost::bind(&Drawing::HandleEvent, this, _1));
+    m_iengine->SubscribeEvent(INPUTEVENT::STROKE_START, boost::bind(&Drawing::HandleEvent, this, boost::placeholders::_1));
 }
 
 void Drawing::HandleEvent(std::shared_ptr<void*> data)

@@ -150,6 +150,8 @@ private:
                 std::cout << "Line through ";
                 ptr = std::static_pointer_cast<Shape::Line>(sh.shape);
 
+                m_rec_module->AddShape(ptr);
+
                 std::cout << ptr->start.X << "," << ptr->start.Y << " " << ptr->end.X << "," << ptr->end.Y << std::endl;
                 break;
             case RPrediction::Ellipse:
@@ -174,6 +176,8 @@ private:
         // Polycurve Check ends(closed/open)
 
         // Save for next texture update
+
+        
     }
 
     bool CheckPrediction(size_t start, size_t end)
@@ -237,9 +241,11 @@ private:
                     break;
                 }
 
+                std::cout << "Prediction failed" << std::endl;
                 return false;
             }
         }
+        return true;
     }
 
     /*!
@@ -263,6 +269,7 @@ private:
         }
 
         auto len = sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
+        std::cout << "Len: " << len << std::endl;
 
         for (size_t i = first + 1; i < last; i++)
         {
@@ -289,12 +296,15 @@ private:
         float x2 = m_data->stroke[last - 1].X;
         float y2 = m_data->stroke[last - 1].Y;
 
+        std::cout << x1 << ',' << y1 << ' ' << x2 << ',' << y2 << std::endl;
+        std::cout << "ShortLCheck: " << abs(x2 - x1) << ',' << abs(y2 - y1) << " thr: " << m_threshold_distance << " thr_ang: " << m_threshold_angle << std::endl;
+
         // Shortline check
         if (abs(x2 - x1) < 2*m_threshold_distance && abs(y2 - y1) < 2*m_threshold_distance)
         {
             m_predictions[pred_idx].active = RPrediction::Line;
             m_predictions[pred_idx].end = last - 1;
-            //std::cout << "End " << last - 1 << std::endl;
+            std::cout << "Shortline End " << last - 1 << std::endl;
             m_predictions[pred_idx].shape = std::make_shared<Shape::Line>(Shape::Point(x1, y1), Shape::Point(x2, y2));
             return true;
         }
