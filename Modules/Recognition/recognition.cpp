@@ -62,6 +62,12 @@ void Recognition::UpdateTextures()
         {
             std::shared_ptr<Shape::Line> ptr;
             std::shared_ptr<Shape::Ellipse> ptrE;
+            double x0;
+            double y0;
+            double x1;
+            double y1;
+            auto xp = [](std::shared_ptr<Shape::Ellipse> ell, float a) { return ell->rl * cos(a) * cos(ell->phi) - ell->rs * sin(a) * sin(ell->phi) + ell->center.X; };
+            auto yp = [](std::shared_ptr<Shape::Ellipse> ell, float a) { return ell->rl * cos(a) * sin(ell->phi) + ell->rs * sin(a) * cos(ell->phi) + ell->center.Y; };
             switch (sh->type)
             {
             case Shape::Type::Line:
@@ -73,6 +79,24 @@ void Recognition::UpdateTextures()
 
                 break;
             case Shape::Type::Ellipse:
+                ptrE = std::static_pointer_cast<Shape::Ellipse>(sh);
+
+                // Parametric form
+
+                x0 = xp(ptrE, 0);
+                y0 = yp(ptrE, 0);
+                // Drawing lines
+                for (float a = 0.2; a < 6.35; a += 0.2)
+                {
+                    x1 = xp(ptrE, a);
+                    y1 = yp(ptrE, a);
+
+                    dlib::draw_line((int)x0, (int)y0, (int)x1, (int)y1, layer, dlib::rgb_alpha_pixel{ 255, 255, 255, 255 });
+                    layer->FreePixels();
+
+                    x0 = x1;
+                    y0 = y1;
+                }
 
                 break;
             default:

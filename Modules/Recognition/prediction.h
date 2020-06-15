@@ -11,10 +11,10 @@
 struct RPrediction
 {
     enum ShapeID{
+        Unknown,
         Line,
         Bezier,
-        Ellipse,
-        Unknown
+        Ellipse
     };
 
     ShapeID active = RPrediction::Unknown;

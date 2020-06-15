@@ -50,8 +50,8 @@ namespace Shape
             double tmp1 = b * b - 4 * a * c;
             double tmp2 = sqrt((a - c) * (a - c) + b * b);
             double tmp3 = a * e * e + c * d * d - b * d * e + tmp1 * f;
-            double r1 = sqrt(2 * tmp3 * (a + c + tmp2)) / tmp1;
-            double r2 = sqrt(2 * tmp3 * (a + c - tmp2)) / tmp1;
+            double r1 = abs(sqrt(2 * tmp3 * (a + c + tmp2)) / tmp1);
+            double r2 = abs(sqrt(2 * tmp3 * (a + c - tmp2)) / tmp1);
 
             rl = r1 >= r2 ? r1 : r2;
             rs = r1 <= r2 ? r1 : r2;

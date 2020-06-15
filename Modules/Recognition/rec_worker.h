@@ -158,6 +158,8 @@ private:
                 std::cout << "Ellipse ";
                 ptrE = std::static_pointer_cast<Shape::Ellipse>(sh.shape);
 
+                m_rec_module->AddShape(ptrE);
+
                 std::cout << "C:" << ptrE->center.X << "," << ptrE->center.Y
                     << " RL:" << ptrE->rl << " RS:" << ptrE->rs << " phi:" << ptrE->phi << std::endl;
                 break;
@@ -192,9 +194,7 @@ private:
                     Shape::Point(m_data->stroke[end - 1].X, m_data->stroke[end - 1].Y);
                 current = m_predictions[pred_idx].end = end - 1;
                 std::cout << "CPEnd " << end - 1 << " X: "<< m_data->stroke[end - 1].X << 
-                    " Y:" << m_data->stroke[end - 1].Y << std::endl;
-                std::cout << "LX: " << std::static_pointer_cast<Shape::Line>(m_predictions[pred_idx].shape)->end.X <<
-                    " LY: " << std::static_pointer_cast<Shape::Line>(m_predictions[pred_idx].shape)->end.Y << std::endl;
+                    " Y:" << m_data->stroke[end - 1].Y << "\n";
                 return true;
             }
         case RPrediction::Ellipse:
@@ -214,38 +214,48 @@ private:
 
     bool PredictShape(size_t start, size_t end)
     {
-        if (!PredictLine(start, end))
+        if (m_predictions[pred_idx].active <= RPrediction::Line)
         {
-            //std::cout << "not line" << std::endl;
-            if (!PredictEllipse(start, end))
-            {
-                //std::cout << "not ellipse" << std::endl;
-                // Complete shape and start new
-                std::shared_ptr<Shape::Line> ptr;
-                std::shared_ptr<Shape::Ellipse> ptrE;
-                switch (m_predictions[pred_idx].active) {
-                case RPrediction::Line:
-                    //std::cout << "Line through ";
-                    //ptr = std::static_pointer_cast<Shape::Line>(m_predictions[pred_idx].shape);
-
-                    //std::cout << ptr->start.X << "," << ptr->start.Y << " " << ptr->end.X << "," << ptr->end.Y << std::endl;
-                    break;
-                case RPrediction::Ellipse:
-                    std::cout << "Ellipse ";
-                    ptrE = std::static_pointer_cast<Shape::Ellipse>(m_predictions[pred_idx].shape);
-
-                    std::cout << "C:" << ptrE->center.X << "," << ptrE->center.Y
-                        << " RL:" << ptrE->rl << " RS:" << ptrE->rs << " phi:" << ptrE->phi << std::endl;
-                    break;
-                default:
-                    break;
-                }
-
-                std::cout << "Prediction failed" << std::endl;
-                return false;
-            }
+            if (PredictLine(start, end))
+                return true;
         }
-        return true;
+
+        if (m_predictions[pred_idx].active <= RPrediction::Ellipse)
+        {
+            if (PredictEllipse(start, end))
+                return true;
+        }
+
+        //if (!PredictLine(start, end))
+        //{
+        //    std::cout << "not line" << std::endl;
+        //    if (!PredictEllipse(start, end))
+        //    {
+        //        //std::cout << "not ellipse" << std::endl;
+        //        // Complete shape and start new
+        //        std::shared_ptr<Shape::Line> ptr;
+        //        std::shared_ptr<Shape::Ellipse> ptrE;
+        //        switch (m_predictions[pred_idx].active) {
+        //        case RPrediction::Line:
+        //            //std::cout << "Line through ";
+        //            //ptr = std::static_pointer_cast<Shape::Line>(m_predictions[pred_idx].shape);
+
+        //            //std::cout << ptr->start.X << "," << ptr->start.Y << " " << ptr->end.X << "," << ptr->end.Y << std::endl;
+        //            break;
+        //        case RPrediction::Ellipse:
+        //            std::cout << "Ellipse ";
+        //            ptrE = std::static_pointer_cast<Shape::Ellipse>(m_predictions[pred_idx].shape);
+
+        //            std::cout << "C:" << ptrE->center.X << "," << ptrE->center.Y
+        //                << " RL:" << ptrE->rl << " RS:" << ptrE->rs << " phi:" << ptrE->phi << std::endl;
+        //            break;
+        //        default:
+        //            break;
+        //        }
+
+        std::cout << "Prediction failed" << std::endl;
+                
+        return false;
     }
 
     /*!
@@ -269,7 +279,6 @@ private:
         }
 
         auto len = sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
-        std::cout << "Len: " << len << std::endl;
 
         for (size_t i = first + 1; i < last; i++)
         {
@@ -297,14 +306,12 @@ private:
         float y2 = m_data->stroke[last - 1].Y;
 
         std::cout << x1 << ',' << y1 << ' ' << x2 << ',' << y2 << std::endl;
-        std::cout << "ShortLCheck: " << abs(x2 - x1) << ',' << abs(y2 - y1) << " thr: " << m_threshold_distance << " thr_ang: " << m_threshold_angle << std::endl;
 
         // Shortline check
         if (abs(x2 - x1) < 2*m_threshold_distance && abs(y2 - y1) < 2*m_threshold_distance)
         {
             m_predictions[pred_idx].active = RPrediction::Line;
             m_predictions[pred_idx].end = last - 1;
-            std::cout << "Shortline End " << last - 1 << std::endl;
             m_predictions[pred_idx].shape = std::make_shared<Shape::Line>(Shape::Point(x1, y1), Shape::Point(x2, y2));
             return true;
         }
@@ -313,7 +320,6 @@ private:
         {
             m_predictions[pred_idx].active = RPrediction::Line;
             m_predictions[pred_idx].end = last - 1;
-            std::cout << "End " << last - 1 << std::endl;
             m_predictions[pred_idx].shape = std::make_shared<Shape::Line>(Shape::Point(x1, y1), Shape::Point(x2, y2));
             return true;
         }
