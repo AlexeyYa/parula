@@ -23,8 +23,8 @@ private:
     tbb::concurrent_vector<std::pair<std::shared_ptr<IStroke>, size_t>> m_strokes;
     int* m_pixels;
     int m_pitch;
-    int m_height;
     int m_width;
+    int m_height;
 };
 
 #endif
