@@ -1,12 +1,15 @@
 
 #include "Input/input_manager.h"
+#include <iostream>
+#include <algorithm>
+#include <memory>
 
 // Stylus handler, Windows RealTimeStylus API
 //#ifdef _WIN32
 //#include "Input/StylusInput/stylus.h"
 //#endif
 
-InputManager::InputManager()
+InputManager::InputManager(int width, int height) : m_width(width), m_height(height)
 {
 
 }
@@ -23,9 +26,18 @@ void InputManager::SubscribeEvent(INPUTEVENT input_event, delegate &function)
     m_events[input_event].connect(function);
 }
 
+void InputManager::PointerCoordEmplace(int x, int y, size_t id)
+{
+    inputs.at(id)->stroke.emplace_back(x, y, 1, 0, 0);
+    inputs.at(id)->cv.notify_all();
+}
+
 void InputManager::EventLoop()
 {
     SDL_Event event;
+    INPUT_DEVICE device;
+    bool clicked = false;
+    int x, y;
 
 //#ifdef _WIN32
 //    SDL_EventState(SDL_SYSWMEVENT, 1);
@@ -46,40 +58,69 @@ void InputManager::EventLoop()
 // Using RTS API for all inputs on windows
 //#ifndef _WIN32
             case SDL_FINGERDOWN:
-                //INPUT_DEVICE device = INPUT_DEVICE::MOUSE;
-                //event.
-                //inputs[StylusInfo->cid] = std::make_shared<IStroke>(tbb::concurrent_vector<IInputState>(), device);
+                device = INPUT_DEVICE::FINGER;
+                inputs[event.tfinger.fingerId] = std::make_shared<IStroke>(tbb::concurrent_vector<IInputState>(), device);
+
+                x = event.tfinger.x * m_width;
+                y = event.tfinger.y * m_height;
+                PointerCoordEmplace(x, y, event.tfinger.fingerId);
+                FireEvent(INPUTEVENT::STROKE_START, std::reinterpret_pointer_cast<void*>(inputs[event.tfinger.fingerId]));
                 break;
             case SDL_MOUSEBUTTONDOWN:
+                if (event.button.which == 0)
+                {
+                    clicked = true;
+                    device = INPUT_DEVICE::MOUSE;
 
+                    inputs[0] = std::make_shared<IStroke>(tbb::concurrent_vector<IInputState>(), device);
+
+                    x = event.button.x;
+                    y = event.button.y;
+                    
+                    PointerCoordEmplace(x, y, 0);
+                    FireEvent(INPUTEVENT::STROKE_START, std::reinterpret_pointer_cast<void*>(inputs[0]));
+                }
                 break;
+
             case SDL_FINGERUP:
-                //inputs[StylusInfo->cid]->completed.store(true);
-                //inputs[StylusInfo->cid]->cv.notify_all();
-                //inputs.erase(StylusInfo->cid);
+                x = event.tfinger.x * m_width;
+                y = event.tfinger.y * m_height;
+                inputs[event.tfinger.fingerId]->completed.store(true);
+                PointerCoordEmplace(x, y, event.tfinger.fingerId);
+                inputs.erase(event.tfinger.fingerId);
                 break;
             case SDL_MOUSEBUTTONUP:
+                if (event.button.which == 0)
+                {
+                    clicked = false;
 
+                    x = event.button.x;
+                    y = event.button.y;
+
+                    inputs[0]->completed.store(true);
+                    PointerCoordEmplace(x, y, 0);
+                    inputs.erase(0);
+                }
                 break;
 
             case SDL_FINGERMOTION:
-                /*IInputState is(TabletContext->WindowsState.X,
-                    TabletContext->WindowsState.Y,
-                    TabletContext->WindowsState.NormalPressure,
-                    TabletContext->WindowsState.TiltX,
-                    TabletContext->WindowsState.TiltY);
-                inputs.at(StylusInfo->cid)->stroke.push_back(is);
-                inputs.at(StylusInfo->cid)->cv.notify_all();
-                */break;
+                x = event.tfinger.x * m_width;
+                y = event.tfinger.y * m_height;
+
+                PointerCoordEmplace(x, y, event.tfinger.fingerId);
+                break;
             case SDL_MOUSEMOTION:
-                /*IInputState is(TabletContext->WindowsState.X,
-                    TabletContext->WindowsState.Y,
-                    TabletContext->WindowsState.NormalPressure,
-                    TabletContext->WindowsState.TiltX,
-                    TabletContext->WindowsState.TiltY);
-                inputs.at(StylusInfo->cid)->stroke.push_back(is);
-                inputs.at(StylusInfo->cid)->cv.notify_all();
-                */break;
+                if (event.button.which == 0)
+                {
+                    if (clicked)
+                    {
+                        x = event.button.x;
+                        y = event.button.y;
+
+                        PointerCoordEmplace(x, y, 0);
+                    }
+                }
+                break;
 //#endif
 //#ifdef _WIN32
 //            // Stylus handler creation event, Windows RealTimeStylus API

@@ -13,7 +13,7 @@ ImageEngine::ImageEngine(int width, int height, SDL_Window* window, SDL_Renderer
     m_tmp_layer(m_width, m_height, m_renderer)
 {
     m_modules.push_back(std::make_unique<Recognition>(this, 10.0f, 3.1415f/12));
-    m_modules.push_back(std::make_unique<Drawing>(this));
+    m_modules.push_back(std::make_unique<Drawing>(this, m_width, m_height));
 
     m_layers.emplace_back(m_width, m_height, m_renderer);
     m_layers.front().Fill(255, 255, 255, 255);

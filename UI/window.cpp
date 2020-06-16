@@ -39,7 +39,7 @@ EditorWindow::EditorWindow(int width, int height, bool fullscreen) :
     m_renderer = SDL_CreateRenderer(m_window, -1, 0);
     SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
 
-    m_input = std::make_shared<InputManager>();
+    m_input = std::make_shared<InputManager>(m_width, m_height);
     m_iengine = std::make_unique<ImageEngine>(m_width, m_height, m_window, m_renderer, m_input);
 
     std::cout << "Window created" << std::endl;

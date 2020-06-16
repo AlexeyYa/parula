@@ -16,7 +16,7 @@
 class InputManager
 {
 public:
-    InputManager();
+    InputManager(int width, int height);
 
     void Run();
     void SubscribeEvent(INPUTEVENT input_event, delegate function);
@@ -25,12 +25,15 @@ public:
     IInputState GetCurrentPointer();
 private:
     void EventLoop();
+    void PointerCoordEmplace(int x, int y, size_t id);
 
     std::map<size_t, std::shared_ptr<IStroke>> inputs;
+    int m_width;
+    int m_height;
 
     bool m_running = false;
     tbb::concurrent_unordered_map<INPUTEVENT, boost::signals2::signal<void(std::shared_ptr<void*>)>,
-        std::hash<INPUTEVENT>> m_events;
+                    std::hash<INPUTEVENT>> m_events;
 };
 
 #endif
