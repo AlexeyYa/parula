@@ -85,10 +85,10 @@ void Recognition::UpdateTextures()
                 ptrE = std::static_pointer_cast<Shs::Ellipse>(sh);
 
 
-                x0 = xp(ptrE, 0);
-                y0 = yp(ptrE, 0);
+                x0 = xp(ptrE, ptrE->alpha - ptrE->phi);
+                y0 = yp(ptrE, ptrE->alpha - ptrE->phi);
                 // Drawing lines, have some strange spooky lines
-                for (float a = ptrE->alpha - ptrE->phi; a < ptrE->beta - ptrE->phi; a += step)
+                for (float a = ptrE->alpha - ptrE->phi + step; a < ptrE->beta - ptrE->phi; a += step)
                 {
                     x1 = xp(ptrE, a);
                     y1 = yp(ptrE, a);
@@ -100,8 +100,8 @@ void Recognition::UpdateTextures()
                     y0 = y1;
                 }
                 // Last segment
-                x1 = xp(ptrE, ptrE->beta);
-                y1 = yp(ptrE, ptrE->beta);
+                x1 = xp(ptrE, ptrE->beta - ptrE->phi);
+                y1 = yp(ptrE, ptrE->beta - ptrE->phi);
 
                 dlib::draw_line((int)x0, (int)y0, (int)x1, (int)y1, layer, dlib::rgb_alpha_pixel{ 255, 255, 255, 255 });
                 layer->FreePixels();
