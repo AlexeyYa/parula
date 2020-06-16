@@ -6,7 +6,7 @@
 #include <mutex>
 
 
-// Temporary drawing there
+// Temporary solution, move to vector graphics module
 #include <dlib/image_processing.h>
 
 long num_rows(LTexture* texture) { return texture->m_height; }
@@ -28,7 +28,7 @@ namespace dlib
         typedef rgb_alpha_pixel pixel_type;
     };
 }
-
+//
 
 Recognition::Recognition(ImageEngine* image_engine, float threshold_distance, float threshold_angle) :
     IModule(image_engine),
@@ -55,6 +55,8 @@ void Recognition::UpdateTextures()
         layer->FreePixels();
         return;
     }*/
+
+    // Move to vector graphics module later
     while (!updateQueue.empty())
     {
         std::shared_ptr<Shs::Shape> sh;
