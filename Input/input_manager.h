@@ -26,6 +26,8 @@ public:
 private:
     void EventLoop();
 
+    std::map<size_t, std::shared_ptr<IStroke>> inputs;
+
     bool m_running = false;
     tbb::concurrent_unordered_map<INPUTEVENT, boost::signals2::signal<void(std::shared_ptr<void*>)>,
         std::hash<INPUTEVENT>> m_events;
