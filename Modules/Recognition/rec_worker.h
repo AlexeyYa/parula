@@ -85,7 +85,6 @@ private:
             {
                 // Next shape if prediction fails
                 m_idx = m_predictions[pred_idx].end;
-                std::cout << "m_pred.end " << m_predictions[pred_idx].end << std::endl;
                 m_predictions.emplace_back();
                 pred_idx++;
                 m_predictions[pred_idx].start = m_idx;
@@ -98,68 +97,74 @@ private:
             //prev_d_d_angle = d_d_angle;
         }
 
-        std::cout << "End\nPredSize" << m_predictions.size() << "\n" << std::endl;
-
         for (auto& sh : m_predictions)
         {
             std::shared_ptr<Shs::Line> ptr;
             std::shared_ptr<Shs::Ellipse> ptrE;
-            switch (sh.shape->T) {
-            case Shs::Type::Line:
-                std::cout << "Line through ";
-                ptr = std::static_pointer_cast<Shs::Line>(sh.shape);
+            if (sh.shape != nullptr)
+            {
+                switch (sh.shape->T) {
+                case Shs::Type::Line:
+                    std::cout << "Line through ";
+                    ptr = std::static_pointer_cast<Shs::Line>(sh.shape);
 
-                m_rec_module->AddShape(ptr);
+                    m_rec_module->AddShape(ptr);
 
-                std::cout << ptr->start.X << "," << ptr->start.Y << " " << ptr->end.X << "," << ptr->end.Y << " st: " << sh.start << " en:" << sh.end << std::endl;
-                break;
-            case Shs::Type::Ellipse:
-                std::cout << "Ellipse ";
-                ptrE = std::static_pointer_cast<Shs::Ellipse>(sh.shape);
+                    std::cout << ptr->start.X << "," << ptr->start.Y << " " << ptr->end.X << "," << ptr->end.Y << " st: " << sh.start << " en:" << sh.end << std::endl;
+                    break;
+                case Shs::Type::Ellipse:
+                    ptrE = std::static_pointer_cast<Shs::Ellipse>(sh.shape);
 
-                // Arc/Ellipse angles
-                if (abs(m_data->stroke[sh.start].X - m_data->stroke[sh.end].X) < m_threshold_distance &&
-                    abs(m_data->stroke[sh.start].Y - m_data->stroke[sh.end].Y) < m_threshold_distance)
-                {
-                    std::cout << "dx: " << m_data->stroke[sh.start].X - m_data->stroke[sh.end].X <<
-                        " dy: " << m_data->stroke[sh.start].Y - m_data->stroke[sh.end].Y << std::endl;
-                    ptrE->alpha = 0;
-                    ptrE->beta = 6.28319; // 2*pi
-                }
-                else
-                {
-                    // 0 : 2*pi angle
-                    auto alpha = atan2(m_data->stroke[sh.start].Y - ptrE->center.Y, m_data->stroke[sh.start].X - ptrE->center.X) + 6.28318530718;
-                    auto tmp = atan2(m_data->stroke[sh.end].Y - ptrE->center.Y, m_data->stroke[sh.end].X - ptrE->center.X) + 6.28318530718;
-                    std::cout << "a: " << alpha << " tmp: " << tmp << std::endl;
-
-                    auto beta = alpha >= tmp ? alpha : tmp;
-                    alpha = alpha < tmp ? alpha : tmp;
-                    
-                    auto theta = atan2(m_data->stroke[(sh.end + sh.start) / 2].Y - ptrE->center.Y, m_data->stroke[(sh.end + sh.start) / 2].X - ptrE->center.X) + 6.28318530718;
-
-                    std::cout << "a: " << alpha << " b: " << beta << " tmp: " << tmp << " theta: " << theta << " st: " << sh.start << " en:" << sh.end << std::endl;
-
-                    if (theta > alpha && beta > theta)
+                    // Arc/Ellipse angles
+                    if (abs(m_data->stroke[sh.start].X - m_data->stroke[sh.end].X) < m_threshold_distance &&
+                        abs(m_data->stroke[sh.start].Y - m_data->stroke[sh.end].Y) < m_threshold_distance)
                     {
-                        ptrE->alpha = alpha;
-                        ptrE->beta = beta;
+                        ptrE->alpha = 0;
+                        ptrE->beta = 6.28319; // 2*pi
                     }
-                    else 
+                    else
                     {
-                        ptrE->alpha = beta;
-                        ptrE->beta = alpha + 6.28319; // 2*pi
+                        // 0 : 2*pi angle
+                        auto alpha = atan2(m_data->stroke[sh.start].Y - ptrE->center.Y, m_data->stroke[sh.start].X - ptrE->center.X) + 6.28318530718;
+                        auto tmp = atan2(m_data->stroke[sh.end].Y - ptrE->center.Y, m_data->stroke[sh.end].X - ptrE->center.X) + 6.28318530718;
+
+                        auto beta = alpha >= tmp ? alpha : tmp;
+                        alpha = alpha < tmp ? alpha : tmp;
+
+                        auto theta = atan2(m_data->stroke[(sh.end + sh.start) / 2].Y - ptrE->center.Y, m_data->stroke[(sh.end + sh.start) / 2].X - ptrE->center.X) + 6.28318530718;
+
+                        if (theta > alpha && beta > theta)
+                        {
+                            ptrE->alpha = alpha;
+                            ptrE->beta = beta;
+                        }
+                        else
+                        {
+                            ptrE->alpha = beta;
+                            ptrE->beta = alpha + 6.28319; // 2*pi
+                        }
                     }
+
+                    if (abs(ptrE->beta - ptrE->alpha) > 6.28)
+                    {
+                        ptrE->alpha = 0;
+                        ptrE->beta = 6.28319; // 2*pi
+                        std::cout << "Ellipse ";
+                    }
+                    else
+                    {
+                        std::cout << "Ellipse arc from " << ptrE->alpha << " rad. to " << ptrE->beta << " rad. "; 
+                    }
+
+                    m_rec_module->AddShape(ptrE);
+
+                    std::cout << "C:" << ptrE->center.X << "," << ptrE->center.Y
+                        << " RL:" << ptrE->rl << " RS:" << ptrE->rs << " phi:" << ptrE->phi << std::endl;
+                    break;
+                default:
+                    //std::cout << "Empty" << std::endl;
+                    break;
                 }
-
-                m_rec_module->AddShape(ptrE);
-
-                std::cout << "C:" << ptrE->center.X << "," << ptrE->center.Y
-                    << " RL:" << ptrE->rl << " RS:" << ptrE->rs << " phi:" << ptrE->phi << std::endl;
-                break;
-            default:
-                //std::cout << "Empty" << std::endl;
-                break;
             }
         }
         m_predictions.clear();
